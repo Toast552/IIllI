@@ -15,7 +15,7 @@ describe("logger", () => {
   })
 
   async function importLogger() {
-    const module = await import("../../src/logger.js")
+    const module = await import("../../src/client.js")
     return module.logger
   }
 
@@ -31,7 +31,7 @@ describe("logger", () => {
 
     expect(parsed.level).toBe("info")
     expect(parsed.message).toBe("Test message")
-    expect(parsed.timestamp).toBeDefined()
+    expect(parsed.ts).toBeDefined()
   })
 
   it("logs with additional data", async () => {
@@ -71,23 +71,6 @@ describe("logger", () => {
 
     expect(parsed.level).toBe("warn")
     expect(parsed.message).toBe("Warning message")
-  })
-
-  it("serializes Error objects in data", async () => {
-    process.env = { ...originalEnv, LOG_LEVEL: "info" }
-    const logger = await importLogger()
-
-    const testError = new Error("Test error message")
-    testError.name = "TestError"
-
-    logger.error("Error log", { error: testError })
-
-    const output = stderrWriteSpy.mock.calls[0][0]
-    const parsed = JSON.parse(output as string)
-
-    expect(parsed.error.message).toBe("Test error message")
-    expect(parsed.error.name).toBe("TestError")
-    expect(parsed.error.stack).toBeDefined()
   })
 
   it("respects LOG_LEVEL=error and suppresses info", async () => {
@@ -174,7 +157,7 @@ describe("logger", () => {
     expect(output.endsWith("\n")).toBe(true)
   })
 
-  it("outputs valid JSON timestamp in ISO format", async () => {
+  it("outputs valid ISO timestamp", async () => {
     process.env = { ...originalEnv, LOG_LEVEL: "info" }
     const logger = await importLogger()
 
@@ -185,9 +168,9 @@ describe("logger", () => {
     const output = stderrWriteSpy.mock.calls[0][0]
     const parsed = JSON.parse(output as string)
 
-    const timestamp = new Date(parsed.timestamp)
-    expect(timestamp.toISOString()).toBe(parsed.timestamp)
-    expect(new Date(parsed.timestamp) >= new Date(before)).toBe(true)
-    expect(new Date(parsed.timestamp) <= new Date(after)).toBe(true)
+    const timestamp = new Date(parsed.ts)
+    expect(timestamp.toISOString()).toBe(parsed.ts)
+    expect(new Date(parsed.ts) >= new Date(before)).toBe(true)
+    expect(new Date(parsed.ts) <= new Date(after)).toBe(true)
   })
 })

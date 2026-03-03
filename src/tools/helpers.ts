@@ -1,6 +1,43 @@
 import type { ZodSchema } from "zod"
 import type { ApiResponse } from "../client.js"
-import { formatZodError } from "../schemas/index.js"
+import { formatZodError } from "../schemas.js"
+
+export class PathBuilder {
+  private params: Map<string, string> = new Map()
+
+  add(name: string, value: unknown, required: boolean = true): this {
+    if (value === undefined || value === null) {
+      if (required) throw new Error(`${name} is required`)
+      return this
+    }
+    const str = String(value)
+    if (str.includes("/") || str.includes("\\") || str.includes("..")) {
+      throw new Error(`Invalid ${name}: contains path characters`)
+    }
+    if (str.length === 0) throw new Error(`${name} cannot be empty`)
+    this.params.set(name, encodeURIComponent(str))
+    return this
+  }
+
+  clear(): this {
+    this.params.clear()
+    return this
+  }
+
+  build(template: string): string {
+    let path = template
+    const matches = template.match(/\{([^}]+)\}/g)
+    if (matches) {
+      for (const match of matches) {
+        const paramName = match.slice(1, -1)
+        const value = this.params.get(paramName)
+        if (value === undefined) throw new Error(`Missing required parameter: ${paramName}`)
+        path = path.replace(match, value)
+      }
+    }
+    return path
+  }
+}
 
 export interface ToolResponse {
   text: string

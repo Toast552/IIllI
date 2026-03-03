@@ -11,7 +11,7 @@ import {
   pageSchema,
   candleSizeSchema,
   deltaSchema,
-} from "../../src/schemas/index.js"
+} from "../../src/schemas.js"
 import { z } from "zod"
 
 describe("toJsonSchema", () => {

@@ -7,9 +7,9 @@ import {
   expirySchema,
   flowGroupSchema,
   flowOutputSchema,
-} from "../schemas/index.js"
+} from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas with all parameters inlined
 const flowAlertsSchema = z.object({
@@ -242,7 +242,7 @@ export const handleFlow = createToolHandler(flowInputSchema, {
   },
 
   full_tape: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("date", data.date)
       .build("/api/option-trades/full-tape/{date}")
     return uwFetch(path)
@@ -258,7 +258,7 @@ export const handleFlow = createToolHandler(flowInputSchema, {
   },
 
   group_greek_flow: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("flow_group", data.flow_group)
       .build("/api/group-flow/{flow_group}/greek-flow")
     return uwFetch(path, {
@@ -267,7 +267,7 @@ export const handleFlow = createToolHandler(flowInputSchema, {
   },
 
   group_greek_flow_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("flow_group", data.flow_group)
       .add("expiry", data.expiry)
       .build("/api/group-flow/{flow_group}/greek-flow/{expiry}")
@@ -290,7 +290,7 @@ export const handleFlow = createToolHandler(flowInputSchema, {
   },
 
   lit_flow_ticker: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/lit-flow/{ticker}")
     return uwFetch(path, {

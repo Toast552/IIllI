@@ -1,204 +1,214 @@
-# Unusual Whales MCP Server
+# Unusual Whales MCP
 
-An MCP server that provides access to [Unusual Whales](https://unusualwhales.com) market data - options flow, dark pool activity, congressional trades, and more. Works with any MCP-compatible client (Claude, or any LLM/application that supports MCP).
+[![npm](https://img.shields.io/npm/v/@unusualwhales/mcp)](https://www.npmjs.com/package/@unusualwhales/mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## What You Can Do
+The official [Unusual Whales](https://unusualwhales.com) MCP server. Connect any MCP-compatible client to 100+ market data endpoints covering options flow, dark pool, congressional trading, Greek exposure, volatility, and more.
 
-Ask about the market using natural language:
-
-- "What's the options flow for AAPL today?"
-- "Show me the latest congressional trades"
-- "What's the dark pool activity for TSLA?"
-- "Get the max pain for SPY options expiring this Friday"
-- "What are institutions buying in the tech sector?"
-- "Give me a daily market summary"
-- "Deep dive on NVDA - options, dark pool, insider activity"
-
-### Available Data
-
-| Category | What's Included |
-|----------|-----------------|
-| **Stock** | Options chains, Greeks, IV rank, OHLC candles, max pain, open interest, volatility |
-| **Options** | Contract flow, historic prices, intraday data, volume profiles |
-| **Flow** | Options flow alerts, full tape, net flow by expiry, sector flow (mag7, semis, etc.) |
-| **Dark Pool** | Dark pool transactions with filtering |
-| **Congress** | Congressional trades, late reports, individual member activity |
-| **Politicians** | Portfolios, recent trades, holdings by ticker |
-| **Insider** | Insider transactions, sector flow, ticker flow |
-| **Institutions** | 13F filings, holdings, sector exposure, ownership |
-| **Market** | Market tide, sector tide, economic calendar, FDA calendar, correlations |
-| **Earnings** | Premarket and afterhours schedules, historical earnings |
-| **ETF** | Holdings, exposure, inflows/outflows, sector weights |
-| **Shorts** | Short interest, FTDs, short volume ratio |
-| **Seasonality** | Market seasonality, monthly performers, ticker patterns |
-| **Screener** | Stock screener, options screener, analyst ratings |
-| **News** | Market news headlines |
-
-### Built-in Analysis Prompts
-
-The server includes many ready-to-use prompts. Just ask to use any prompt by name.
-
-#### Market Overview
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `daily-summary` | Comprehensive market overview with tide, sectors, flow, dark pool | "Use the daily-summary prompt" |
-| `morning-briefing` | Start the day with tide, earnings, and key activity | "Use the morning-briefing prompt" |
-| `end-of-day-recap` | EOD summary with top movers, sectors, and themes | "Use end-of-day-recap" |
-| `weekly-expiration` | Max pain, gamma, and OI for weekly expiration | "Use weekly-expiration for SPY, QQQ, IWM" |
-| `top-movers` | Top tickers by net premium and options impact | "Use top-movers" |
-
-#### Ticker Analysis
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `ticker-analysis` | Deep dive on a stock with options, dark pool, insiders, catalysts | "Use ticker-analysis for NVDA" |
-| `options-setup` | IV rank, term structure, max pain - is premium cheap or expensive? | "Use options-setup for TSLA" |
-| `pre-earnings` | Historical moves, IV, positioning before earnings | "Use pre-earnings for AAPL" |
-| `greek-exposure` | Gamma, delta, vanna exposure by strike | "Use greek-exposure for SPY" |
-| `short-interest` | Short interest, FTDs, squeeze potential | "Use short-interest for GME" |
-| `option-contract` | Deep dive on a specific option contract | "Use option-contract for AAPL240119C00150000" |
-| `correlation-analysis` | Analyze correlations between tickers | "Use correlation-analysis for NVDA,AMD,INTC" |
-
-#### Flow & Activity
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `unusual-flow` | Scan for unusual options activity across the market | "Use unusual-flow with min_premium 500000" |
-| `dark-pool-scanner` | Find large dark pool prints and institutional activity | "Use dark-pool-scanner" |
-| `sector-flow` | Options flow sentiment for sector groups (mag7, semi, bank, etc.) | "Use sector-flow for semi" |
-
-#### Smart Money
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `congress-tracker` | Recent congressional trading with pattern detection | "Use congress-tracker" |
-| `politician-portfolio` | Portfolio holdings and trades for a specific politician | "Use politician-portfolio for Nancy Pelosi" |
-| `insider-scanner` | Scan for insider buying/selling patterns | "Use insider-scanner" |
-| `institutional-activity` | 13F filings, holdings changes, sector rotation | "Use institutional-activity for technology" |
-| `analyst-tracker` | Analyst ratings with options flow correlation | "Use analyst-tracker" |
-
-#### Calendars & Events
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `earnings-calendar` | Earnings with IV, expected moves, and positioning | "Use earnings-calendar for this week" |
-| `fda-calendar` | FDA events with biotech options activity | "Use fda-calendar" |
-| `economic-calendar` | FOMC, CPI, jobs data with market positioning | "Use economic-calendar" |
-
-#### Screening & Discovery
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `iv-screener` | Find high or low IV rank stocks for options strategies | "Use iv-screener" |
-| `bullish-confluence` | Stocks with bullish flow + dark pool + insider buying | "Use bullish-confluence" |
-| `bearish-confluence` | Stocks with bearish flow + distribution + insider selling | "Use bearish-confluence" |
-| `news-scanner` | Market news headlines with related flow | "Use news-scanner" or "Use news-scanner for TSLA" |
-
-#### Other
-| Prompt | Description | Example |
-|--------|-------------|---------|
-| `seasonality` | Historical seasonal patterns for a ticker or market | "Use seasonality for AAPL" |
-| `etf-flow` | ETF inflows/outflows or find ETF exposure for a stock | "Use etf-flow for QQQ" |
-
-#### Combining Prompts
-
-Chain prompts together for comprehensive analysis:
-
-```
-Use morning-briefing, then use unusual-flow to dig into the top movers
-```
-
-```
-Use pre-earnings for NVDA, then use greek-exposure to see dealer positioning
-```
-
-```
-Use bullish-confluence to find candidates, then use ticker-analysis on the top result
-```
-
-## Getting Started
+## Quick Start
 
 ### 1. Get an API Key
 
-Sign up at [Unusual Whales](https://unusualwhales.com) and get your API key.
+Get your key at [unusualwhales.com/account/api-key](https://unusualwhales.com/account/api-key).
 
-### 2. Install
+### 2. Connect
 
-Choose either **Remote** (easiest, no install) or **Local** (runs on your machine):
+**Remote (recommended)** — no install, connects to the hosted endpoint:
 
-#### Option A: Remote Server (Recommended)
-
-Connect directly to the Unusual Whales hosted MCP endpoint. No npm install needed.
-
-**Claude Code:**
 ```bash
-claude mcp add unusualwhales --transport http https://api.unusualwhales.com/api/mcp -H "Authorization: Bearer your_api_key"
+# Claude Code
+claude mcp add unusualwhales --transport http https://api.unusualwhales.com/api/mcp -H "Authorization: Bearer YOUR_KEY"
 ```
 
-**Claude Desktop / Cursor / VS Code / Windsurf:**
-
-Add to your MCP config file:
-- **Claude Desktop (macOS)**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Claude Desktop (Windows)**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **Cursor**: `.cursor/mcp.json` in your project or `~/.cursor/mcp.json`
-- **VS Code**: `.vscode/mcp.json` in your project
-- **Windsurf**: `~/.codeium/windsurf/mcp_config.json`
-
 ```json
+// Claude Desktop, Cursor, VS Code, Windsurf
 {
   "mcpServers": {
     "unusualwhales": {
       "url": "https://api.unusualwhales.com/api/mcp",
       "headers": {
-        "Authorization": "Bearer your_api_key"
+        "Authorization": "Bearer YOUR_KEY"
       }
     }
   }
 }
 ```
 
-#### Option B: Local Server
+<details>
+<summary><strong>Local</strong> — runs on your machine (Node.js 20+)</summary>
 
-Run the MCP server locally on your machine. Requires Node.js 20+.
-
-**Claude Code:**
 ```bash
-claude mcp add unusualwhales -e UW_API_KEY=your_api_key -- npx -y @unusualwhales/mcp
+# Claude Code
+claude mcp add unusualwhales -e UW_API_KEY=YOUR_KEY -- npx -y @unusualwhales/mcp
 ```
 
-**Claude Desktop / Cursor / VS Code / Windsurf:**
-
 ```json
+// Claude Desktop, Cursor, VS Code, Windsurf
 {
   "mcpServers": {
     "unusualwhales": {
       "command": "npx",
       "args": ["-y", "@unusualwhales/mcp"],
       "env": {
-        "UW_API_KEY": "your_api_key"
+        "UW_API_KEY": "YOUR_KEY"
       }
     }
   }
 }
 ```
 
-### 3. Start Asking Questions
+Config file locations:
+- **Claude Desktop (macOS)**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Claude Desktop (Windows)**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Cursor**: `.cursor/mcp.json` or `~/.cursor/mcp.json`
+- **VS Code**: `.vscode/mcp.json`
+- **Windsurf**: `~/.codeium/windsurf/mcp_config.json`
 
-Once configured, just ask about the market. The Unusual Whales data will be used automatically.
+</details>
 
-## Configuration (Optional)
+### 3. Ask Questions
 
-The defaults work well for most users. All settings can be adjusted via environment variables:
+Once connected, just ask about the market in natural language:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `UW_API_KEY` | Your Unusual Whales API key | Required |
-| `UW_RATE_LIMIT_PER_MINUTE` | Max requests per minute | `120` |
-| `UW_MAX_RETRIES` | Retry attempts for failed requests | `3` |
-| `UW_CIRCUIT_BREAKER_THRESHOLD` | Failures before pausing requests | `5` |
-| `UW_CIRCUIT_BREAKER_RESET_TIMEOUT` | Milliseconds before retrying after failures | `30000` |
+```
+What's the options flow for AAPL today?
+Show me the latest congressional trades
+What's the dark pool activity for TSLA?
+Get the max pain for SPY options expiring this Friday
+Deep dive on NVDA - options, dark pool, insider activity
+```
 
-The server automatically handles rate limiting, retries failed requests with backoff, and temporarily pauses requests if the API is having issues (circuit breaker). See [CONTRIBUTING.md](CONTRIBUTING.md) for technical details.
+## Tools
+
+The server exposes tools across 15 data categories. Your MCP client will call them automatically based on your questions.
+
+| Category | Examples |
+|----------|----------|
+| **Stock** | Options chains, Greeks, IV rank, OHLC candles, max pain, OI, volatility |
+| **Options** | Contract flow, historic prices, intraday data, volume profiles |
+| **Flow** | Options flow alerts, full tape, net flow by expiry, sector flow |
+| **Dark Pool** | Transactions with NBBO context, price level filtering |
+| **Congress** | Congressional trades, late filings, individual member activity |
+| **Politicians** | Portfolios, recent trades, holdings by ticker |
+| **Insider** | Insider transactions, sector flow, ticker flow |
+| **Institutions** | 13F filings, holdings, sector exposure, ownership changes |
+| **Market** | Market tide, sector tide, economic calendar, FDA calendar, correlations |
+| **Earnings** | Premarket and afterhours schedules, historical earnings |
+| **ETF** | Holdings, exposure, inflows/outflows, sector weights |
+| **Shorts** | Short interest, FTDs, short volume ratio, borrow rates |
+| **Seasonality** | Monthly performers, yearly patterns, historical seasonality |
+| **Screener** | Stock screener, options screener, analyst ratings |
+| **News** | Market news headlines |
+
+## Prompts
+
+The server includes 30+ ready-to-use analysis prompts. Ask to use any prompt by name.
+
+<details>
+<summary><strong>Market Overview</strong></summary>
+
+| Prompt | What it does |
+|--------|-------------|
+| `daily-summary` | Market overview with tide, sectors, flow, dark pool |
+| `morning-briefing` | Morning tide, earnings, and key activity |
+| `end-of-day-recap` | EOD top movers, sectors, and themes |
+| `weekly-expiration` | Max pain, gamma, and OI for weekly expiry |
+| `top-movers` | Top tickers by net premium and options impact |
+
+</details>
+
+<details>
+<summary><strong>Ticker Analysis</strong></summary>
+
+| Prompt | What it does |
+|--------|-------------|
+| `ticker-analysis` | Deep dive: options, dark pool, insiders, catalysts |
+| `options-setup` | IV rank, term structure, max pain analysis |
+| `pre-earnings` | Historical moves, IV, positioning before earnings |
+| `greek-exposure` | Gamma, delta, vanna exposure by strike |
+| `short-interest` | Short interest, FTDs, squeeze potential |
+| `option-contract` | Deep dive on a specific option contract |
+| `correlation-analysis` | Cross-ticker correlation analysis |
+
+</details>
+
+<details>
+<summary><strong>Flow & Activity</strong></summary>
+
+| Prompt | What it does |
+|--------|-------------|
+| `unusual-flow` | Scan for unusual options activity |
+| `dark-pool-scanner` | Large dark pool prints and institutional activity |
+| `sector-flow` | Options flow sentiment by sector group |
+
+</details>
+
+<details>
+<summary><strong>Smart Money</strong></summary>
+
+| Prompt | What it does |
+|--------|-------------|
+| `congress-tracker` | Recent congressional trading with patterns |
+| `politician-portfolio` | Portfolio holdings for a specific politician |
+| `insider-scanner` | Insider buying/selling patterns |
+| `institutional-activity` | 13F filings, holdings changes, sector rotation |
+| `analyst-tracker` | Analyst ratings with options flow correlation |
+
+</details>
+
+<details>
+<summary><strong>Calendars & Events</strong></summary>
+
+| Prompt | What it does |
+|--------|-------------|
+| `earnings-calendar` | Earnings with IV and expected moves |
+| `fda-calendar` | FDA events with biotech options activity |
+| `economic-calendar` | FOMC, CPI, jobs data with positioning |
+
+</details>
+
+<details>
+<summary><strong>Screening & Discovery</strong></summary>
+
+| Prompt | What it does |
+|--------|-------------|
+| `iv-screener` | High/low IV rank stocks for options strategies |
+| `bullish-confluence` | Bullish flow + dark pool + insider buying |
+| `bearish-confluence` | Bearish flow + distribution + insider selling |
+| `news-scanner` | Headlines with related options flow |
+| `seasonality` | Historical seasonal patterns |
+| `etf-flow` | ETF inflows/outflows and exposure |
+
+</details>
+
+Chain prompts for deeper analysis:
+```
+Use morning-briefing, then unusual-flow to dig into top movers
+Use pre-earnings for NVDA, then greek-exposure to see dealer positioning
+Use bullish-confluence to find candidates, then ticker-analysis on the top result
+```
+
+## Configuration
+
+All optional. The defaults work for most users.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `UW_API_KEY` | *required* | Your Unusual Whales API key |
+| `UW_RATE_LIMIT_PER_MINUTE` | `120` | Max requests per minute |
+| `UW_MAX_RETRIES` | `3` | Retry attempts for failed requests |
+| `UW_CIRCUIT_BREAKER_THRESHOLD` | `5` | Failures before circuit opens |
+| `UW_CIRCUIT_BREAKER_RESET_TIMEOUT` | `30000` | Ms before retrying after circuit opens |
+| `LOG_LEVEL` | `info` | Logging verbosity (`debug`, `info`, `warn`, `error`) |
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and contribution guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Acknowledgments
+
+This project was inspired by the community MCP server built by [Erik Maday](https://github.com/erikmaday/unusual-whales-mcp).
 
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE).

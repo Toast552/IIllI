@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const infoSchema = z.object({
@@ -63,35 +63,35 @@ Available actions:
  */
 export const handleEtf = createToolHandler(etfInputSchema, {
   info: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/etfs/{ticker}/info")
     return uwFetch(path)
   },
 
   holdings: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/etfs/{ticker}/holdings")
     return uwFetch(path)
   },
 
   exposure: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/etfs/{ticker}/exposure")
     return uwFetch(path)
   },
 
   in_outflow: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/etfs/{ticker}/in-outflow")
     return uwFetch(path)
   },
 
   weights: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/etfs/{ticker}/weights")
     return uwFetch(path)

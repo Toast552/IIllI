@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema, dateSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema, dateSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const recentSchema = z.object({
@@ -74,7 +74,7 @@ export const handleDarkpool = createToolHandler(darkpoolInputSchema, {
   },
 
   ticker: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/darkpool/{ticker}")
     return uwFetch(path, {

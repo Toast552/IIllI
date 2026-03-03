@@ -15,9 +15,9 @@ import {
   pageSchema,
   timespanSchema,
   filterSchema,
-} from "../schemas/index.js"
+} from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Sector enum reused across actions
 const sectorEnum = z.enum([
@@ -447,14 +447,14 @@ Available actions:
  */
 export const handleStock = createToolHandler(stockInputSchema, {
   info: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/info")
     return uwFetch(path)
   },
 
   ohlc: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .add("candle_size", data.candle_size)
       .build("/api/stock/{ticker}/ohlc/{candle_size}")
@@ -467,14 +467,14 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   option_chains: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/option-chains")
     return uwFetch(path, { date: data.date })
   },
 
   option_contracts: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/option-contracts")
     return uwFetch(path, {
@@ -492,7 +492,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   greeks: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/greeks")
     return uwFetch(path, {
@@ -502,7 +502,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   greek_exposure: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/greek-exposure")
     return uwFetch(path, {
@@ -512,21 +512,21 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   greek_exposure_by_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/greek-exposure/expiry")
     return uwFetch(path, { date: data.date })
   },
 
   greek_exposure_by_strike: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/greek-exposure/strike")
     return uwFetch(path, { date: data.date })
   },
 
   greek_exposure_by_strike_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/greek-exposure/strike-expiry")
     return uwFetch(path, {
@@ -536,14 +536,14 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   greek_flow: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/greek-flow")
     return uwFetch(path, { date: data.date })
   },
 
   greek_flow_by_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .add("expiry", data.expiry)
       .build("/api/stock/{ticker}/greek-flow/{expiry}")
@@ -551,7 +551,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   iv_rank: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/iv-rank")
     return uwFetch(path, {
@@ -561,21 +561,21 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   interpolated_iv: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/interpolated-iv")
     return uwFetch(path, { date: data.date })
   },
 
   max_pain: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/max-pain")
     return uwFetch(path, { date: data.date })
   },
 
   oi_change: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/oi-change")
     return uwFetch(path, {
@@ -587,63 +587,63 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   oi_per_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/oi-per-expiry")
     return uwFetch(path, { date: data.date })
   },
 
   oi_per_strike: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/oi-per-strike")
     return uwFetch(path, { date: data.date })
   },
 
   options_volume: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/options-volume")
     return uwFetch(path, { limit: data.limit })
   },
 
   volume_oi_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/option/volume-oi-expiry")
     return uwFetch(path, { date: data.date })
   },
 
   atm_chains: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/atm-chains")
     return uwFetch(path, { "expirations[]": data.expirations })
   },
 
   expiry_breakdown: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/expiry-breakdown")
     return uwFetch(path, { date: data.date })
   },
 
   flow_per_expiry: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/flow-per-expiry")
     return uwFetch(path)
   },
 
   flow_per_strike: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/flow-per-strike")
     return uwFetch(path, { date: data.date })
   },
 
   flow_per_strike_intraday: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/flow-per-strike-intraday")
     return uwFetch(path, {
@@ -653,7 +653,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   flow_recent: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/flow-recent")
     return uwFetch(path, {
@@ -663,42 +663,42 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   net_prem_ticks: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/net-prem-ticks")
     return uwFetch(path, { date: data.date })
   },
 
   nope: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/nope")
     return uwFetch(path, { date: data.date })
   },
 
   stock_price_levels: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/option/stock-price-levels")
     return uwFetch(path, { date: data.date })
   },
 
   stock_volume_price_levels: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/stock-volume-price-levels")
     return uwFetch(path, { date: data.date })
   },
 
   spot_exposures: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/spot-exposures")
     return uwFetch(path, { date: data.date })
   },
 
   spot_exposures_by_expiry_strike: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/spot-exposures/expiry-strike")
     return uwFetch(path, {
@@ -714,7 +714,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   spot_exposures_by_strike: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/spot-exposures/strike")
     return uwFetch(path, {
@@ -727,7 +727,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   spot_exposures_expiry_strike: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/spot-exposures/expiry-strike")
     return uwFetch(path, {
@@ -743,7 +743,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   historical_risk_reversal_skew: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/historical-risk-reversal-skew")
     return uwFetch(path, {
@@ -755,7 +755,7 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   volatility_realized: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/volatility/realized")
     return uwFetch(path, {
@@ -765,42 +765,42 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   volatility_stats: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/volatility/stats")
     return uwFetch(path, { date: data.date })
   },
 
   volatility_term_structure: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/volatility/term-structure")
     return uwFetch(path, { date: data.date })
   },
 
   stock_state: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/stock-state")
     return uwFetch(path)
   },
 
   insider_buy_sells: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/insider-buy-sells")
     return uwFetch(path)
   },
 
   ownership: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/ownership")
     return uwFetch(path, { limit: data.limit })
   },
 
   tickers_by_sector: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("sector", data.sector)
       .build("/api/stock/{sector}/tickers")
     return uwFetch(path)
@@ -811,14 +811,14 @@ export const handleStock = createToolHandler(stockInputSchema, {
   },
 
   flow_alerts: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/flow-alerts")
     return uwFetch(path, { limit: data.limit })
   },
 
   fundamental_breakdown: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/stock/{ticker}/fundamental-breakdown")
     return uwFetch(path)

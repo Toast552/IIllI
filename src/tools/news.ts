@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema, pageSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema, pageSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
 
 // News-specific limit schema with max 500

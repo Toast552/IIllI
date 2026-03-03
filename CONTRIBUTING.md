@@ -3,8 +3,8 @@
 ## Development Setup
 
 ```bash
-git clone https://github.com/unusual-whales/uw-mcp.git
-cd uw-mcp
+git clone https://github.com/unusual-whales/unusual-whales-official-mcp.git
+cd unusual-whales-official-mcp
 npm install
 
 export UW_API_KEY="your_api_key_here"

@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema, dateSchema, pageSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema, dateSchema, pageSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Earnings-specific limit schema with max 100
 const earningsLimitSchema = z.number()
@@ -77,7 +77,7 @@ export const handleEarnings = createToolHandler(earningsInputSchema, {
   },
 
   ticker: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/earnings/{ticker}")
     return uwFetch(path)

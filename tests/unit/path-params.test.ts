@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { PathParamBuilder, encodePath } from "../../src/utils/path-params.js"
+import { PathBuilder } from "../../src/tools/helpers.js"
+import { encodePath } from "../../src/client.js"
 
-describe("PathParamBuilder", () => {
+describe("PathBuilder", () => {
   describe("add", () => {
     it("adds a required parameter", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
       const result = builder.add("ticker", "AAPL")
 
       expect(result).toBe(builder) // Returns this for chaining
@@ -12,7 +13,7 @@ describe("PathParamBuilder", () => {
     })
 
     it("adds multiple parameters via chaining", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("ticker", "AAPL")
         .add("expiry", "2024-01-19")
         .build("/api/stock/{ticker}/greek-flow/{expiry}")
@@ -21,33 +22,33 @@ describe("PathParamBuilder", () => {
     })
 
     it("throws when required parameter is undefined", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
 
       expect(() => builder.add("ticker", undefined)).toThrow("ticker is required")
     })
 
     it("throws when required parameter is null", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
 
       expect(() => builder.add("ticker", null)).toThrow("ticker is required")
     })
 
     it("skips optional parameter when undefined", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
       const result = builder.add("optional", undefined, false)
 
       expect(result).toBe(builder)
     })
 
     it("skips optional parameter when null", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
       const result = builder.add("optional", null, false)
 
       expect(result).toBe(builder)
     })
 
     it("adds optional parameter when value is provided", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("ticker", "AAPL")
         .add("date", "2024-01-19", false)
         .build("/api/{ticker}/{date}")
@@ -56,32 +57,32 @@ describe("PathParamBuilder", () => {
     })
 
     it("throws when value contains forward slash", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
 
       expect(() => builder.add("ticker", "AA/PL")).toThrow("Invalid ticker: contains path characters")
     })
 
     it("throws when value contains backslash", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
 
       expect(() => builder.add("ticker", "AA\\PL")).toThrow("Invalid ticker: contains path characters")
     })
 
     it("throws when value contains path traversal", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
 
       expect(() => builder.add("ticker", "..")).toThrow("Invalid ticker: contains path characters")
       expect(() => builder.add("ticker", "foo..bar")).toThrow("Invalid ticker: contains path characters")
     })
 
     it("throws when value is empty string", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
 
       expect(() => builder.add("ticker", "")).toThrow("ticker cannot be empty")
     })
 
     it("encodes special characters", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("ticker", "AAPL 2024")
         .build("/api/{ticker}")
 
@@ -89,7 +90,7 @@ describe("PathParamBuilder", () => {
     })
 
     it("converts numbers to strings", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("id", 12345)
         .build("/api/{id}")
 
@@ -97,7 +98,7 @@ describe("PathParamBuilder", () => {
     })
 
     it("converts booleans to strings", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("flag", true)
         .build("/api/{flag}")
 
@@ -107,7 +108,7 @@ describe("PathParamBuilder", () => {
 
   describe("build", () => {
     it("replaces single placeholder", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("ticker", "AAPL")
         .build("/api/stock/{ticker}/info")
 
@@ -115,7 +116,7 @@ describe("PathParamBuilder", () => {
     })
 
     it("replaces multiple placeholders", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("ticker", "AAPL")
         .add("expiry", "2024-01-19")
         .add("strike", "150")
@@ -125,21 +126,21 @@ describe("PathParamBuilder", () => {
     })
 
     it("handles template with no placeholders", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .build("/api/market/tide")
 
       expect(path).toBe("/api/market/tide")
     })
 
     it("throws when placeholder has no matching parameter", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
         .add("ticker", "AAPL")
 
       expect(() => builder.build("/api/{ticker}/{expiry}")).toThrow("Missing required parameter: expiry")
     })
 
     it("replaces same placeholder multiple times", () => {
-      const path = new PathParamBuilder()
+      const path = new PathBuilder()
         .add("ticker", "AAPL")
         .build("/api/{ticker}/compare/{ticker}")
 
@@ -149,7 +150,7 @@ describe("PathParamBuilder", () => {
 
   describe("clear", () => {
     it("clears all parameters", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
         .add("ticker", "AAPL")
         .add("expiry", "2024-01-19")
 
@@ -160,7 +161,7 @@ describe("PathParamBuilder", () => {
     })
 
     it("allows reuse after clearing", () => {
-      const builder = new PathParamBuilder()
+      const builder = new PathBuilder()
         .add("ticker", "AAPL")
 
       builder.clear()

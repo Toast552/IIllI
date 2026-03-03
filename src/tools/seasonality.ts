@@ -4,9 +4,9 @@ import {
   toJsonSchema, tickerSchema,
   seasonalityOrderBySchema, minYearsSchema, sP500NasdaqOnlySchema,
   seasonalityLimitSchema, seasonalityOrderDirectionSchema,
-} from "../schemas/index.js"
+} from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const marketSchema = z.object({
@@ -71,7 +71,7 @@ export const handleSeasonality = createToolHandler(seasonalityInputSchema, {
   },
 
   performers: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("month", data.month)
       .build("/api/seasonality/{month}/performers")
     return uwFetch(path, {
@@ -86,14 +86,14 @@ export const handleSeasonality = createToolHandler(seasonalityInputSchema, {
   },
 
   monthly: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/seasonality/{ticker}/monthly")
     return uwFetch(path)
   },
 
   year_month: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/seasonality/{ticker}/year-month")
     return uwFetch(path)

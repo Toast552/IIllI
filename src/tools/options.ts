@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, dateSchema, limitSchema, sideSchema } from "../schemas/index.js"
+import { toJsonSchema, dateSchema, limitSchema, sideSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas - each is a complete specification
 const flowSchema = z.object({
@@ -65,7 +65,7 @@ The 'id' parameter is the option contract symbol (e.g., AAPL240119C00150000).`,
  */
 export const handleOptions = createToolHandler(optionsInputSchema, {
   flow: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("id", data.id)
       .build("/api/option-contract/{id}/flow")
 
@@ -78,7 +78,7 @@ export const handleOptions = createToolHandler(optionsInputSchema, {
   },
 
   historic: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("id", data.id)
       .build("/api/option-contract/{id}/historic")
 
@@ -86,7 +86,7 @@ export const handleOptions = createToolHandler(optionsInputSchema, {
   },
 
   intraday: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("id", data.id)
       .build("/api/option-contract/{id}/intraday")
 
@@ -94,7 +94,7 @@ export const handleOptions = createToolHandler(optionsInputSchema, {
   },
 
   volume_profile: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("id", data.id)
       .build("/api/option-contract/{id}/volume-profile")
 

@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema } from "../schemas/index.js"
+import { toJsonSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 const pairSchema = z.string().min(1).max(20).describe("Crypto pair (e.g., BTC-USD, ETH-USD)")
 
@@ -80,14 +80,14 @@ Supported blockchains: ethereum, bitcoin, solana, polygon, arbitrum, avalanche, 
 
 export const handleCrypto = createToolHandler(cryptoInputSchema, {
   state: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("pair", data.pair)
       .build("/api/crypto/{pair}/state")
     return uwFetch(path)
   },
 
   ohlc: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("pair", data.pair)
       .add("candle_size", data.candle_size)
       .build("/api/crypto/{pair}/ohlc/{candle_size}")

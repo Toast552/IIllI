@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, limitSchema } from "../schemas/index.js"
+import { toJsonSchema, limitSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
 
 // Explicit per-action schemas

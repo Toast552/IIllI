@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema, dateSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema, dateSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const marketTideSchema = z.object({
@@ -135,7 +135,7 @@ export const handleMarket = createToolHandler(marketInputSchema, {
   },
 
   sector_tide: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("sector", data.sector)
       .build("/api/market/{sector}/sector-tide")
     return uwFetch(path, {
@@ -144,7 +144,7 @@ export const handleMarket = createToolHandler(marketInputSchema, {
   },
 
   etf_tide: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/market/{ticker}/etf-tide")
     return uwFetch(path, {

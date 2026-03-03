@@ -1,15 +1,15 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema, dateSchema, limitSchema, orderDirectionSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema, dateSchema, limitSchema, orderDirectionSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 import {
   institutionalActivityOrderBySchema,
   institutionalHoldingsOrderBySchema,
   institutionalListOrderBySchema,
   institutionalOwnershipOrderBySchema,
   latestInstitutionalFilingsOrderBySchema,
-} from "../schemas/institutions.js"
+} from "../schemas.js"
 
 // Explicit per-action schemas
 const listSchema = z.object({
@@ -145,7 +145,7 @@ export const handleInstitutions = createToolHandler(institutionsInputSchema, {
   },
 
   holdings: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("name", data.name)
       .build("/api/institution/{name}/holdings")
     return uwFetch(path, {
@@ -162,7 +162,7 @@ export const handleInstitutions = createToolHandler(institutionsInputSchema, {
   },
 
   activity: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("name", data.name)
       .build("/api/institution/{name}/activity")
     return uwFetch(path, {
@@ -175,7 +175,7 @@ export const handleInstitutions = createToolHandler(institutionsInputSchema, {
   },
 
   activity_v2: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("name", data.name)
       .build("/api/institution/{name}/activity/v2")
     return uwFetch(path, {
@@ -190,7 +190,7 @@ export const handleInstitutions = createToolHandler(institutionsInputSchema, {
   },
 
   sectors: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("name", data.name)
       .build("/api/institution/{name}/sectors")
     return uwFetch(path, {
@@ -201,7 +201,7 @@ export const handleInstitutions = createToolHandler(institutionsInputSchema, {
   },
 
   ownership: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/institution/{ticker}/ownership")
     return uwFetch(path, {

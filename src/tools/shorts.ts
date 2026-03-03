@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const dataSchema = z.object({
@@ -97,42 +97,42 @@ Available actions:
  */
 export const handleShorts = createToolHandler(shortsInputSchema, {
   data: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/shorts/{ticker}/data")
     return uwFetch(path)
   },
 
   ftds: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/shorts/{ticker}/ftds")
     return uwFetch(path)
   },
 
   interest_float: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/shorts/{ticker}/interest-float")
     return uwFetch(path)
   },
 
   volume_ratio: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/shorts/{ticker}/volume-and-ratio")
     return uwFetch(path)
   },
 
   volumes_by_exchange: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/shorts/{ticker}/volumes-by-exchange")
     return uwFetch(path)
   },
 
   interest_float_v2: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/shorts/{ticker}/interest-float/v2")
     return uwFetch(path)

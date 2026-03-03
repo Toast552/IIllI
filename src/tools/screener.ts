@@ -1,11 +1,11 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
 import {
   stockScreenerOrderBySchema,
   optionContractScreenerOrderBySchema,
-} from "../schemas/screener.js"
+} from "../schemas.js"
 
 // Fully explicit schema - all parameters listed for perfect API sync validation
 const stocksSchema = z.object({

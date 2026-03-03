@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const transactionsSchema = z.object({
@@ -109,21 +109,21 @@ export const handleInsider = createToolHandler(insiderInputSchema, {
   },
 
   sector_flow: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("sector", data.sector)
       .build("/api/insider/{sector}/sector-flow")
     return uwFetch(path)
   },
 
   ticker_flow: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/insider/{ticker}/ticker-flow")
     return uwFetch(path)
   },
 
   insiders: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/insider/{ticker}")
     return uwFetch(path)

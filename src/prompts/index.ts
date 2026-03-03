@@ -1,37 +1,40 @@
 import type { Prompt, PromptArgument, PromptMessage } from "@modelcontextprotocol/sdk/types.js"
 
-/**
- * Type definition for a prompt handler function.
- */
 export type PromptHandler = (args: Record<string, string>) => Promise<PromptMessage[]>
 
-/**
- * Represents a prompt registration with its definition and handler.
- */
-interface PromptRegistration {
-  prompt: Prompt
-  handler: PromptHandler
+interface PromptSpec {
+  name: string
+  description: string
+  args: PromptArgument[]
+  render(a: Record<string, string>): string
 }
 
-/**
- * Daily Market Summary Prompt
- * Combines market tide, sector analysis, unusual options flow, and dark pool activity.
- */
-const dailySummaryPrompt: Prompt = {
-  name: "daily-summary",
-  description: "Generate a comprehensive daily market summary with unusual activity",
-  arguments: [
-    {
-      name: "date",
-      description: "Date to analyze in YYYY-MM-DD format (default: today)",
-      required: false,
-    },
-  ] as PromptArgument[],
+function toMessages(text: string): PromptMessage[] {
+  return [{ role: "user", content: { type: "text", text } }]
 }
 
-async function handleDailySummary(args: Record<string, string>): Promise<PromptMessage[]> {
-  const date = args.date || "today"
-  const content = `Analyze the market for ${date}:
+function req(args: Record<string, string>, key: string, upper = false): string {
+  const val = upper ? args[key]?.toUpperCase() || "" : args[key] || ""
+  if (!val) throw new Error(`${key} argument is required`)
+  return val
+}
+
+function opt(name: string, description: string): PromptArgument {
+  return { name, description, required: false }
+}
+
+function needed(name: string, description: string): PromptArgument {
+  return { name, description, required: true }
+}
+
+const specs: PromptSpec[] = [
+  {
+    name: "daily-summary",
+    description: "Generate a comprehensive daily market summary with unusual activity",
+    args: [opt("date", "Date to analyze in YYYY-MM-DD format (default: today)")],
+    render: (a) => {
+      const date = a.date || "today"
+      return `Analyze the market for ${date}:
 
 1. Get the current market tide and sector tide to understand overall market sentiment
 2. Find the top 10 unusual options flow alerts (sorted by premium) to identify large bets
@@ -44,41 +47,15 @@ Focus on identifying:
 - Tickers with significant institutional interest (dark pool + options flow)
 - Any unusual activity that could signal upcoming moves
 - Key risk factors or opportunities`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Ticker Deep Dive Prompt
- * Comprehensive analysis of a single ticker across multiple data sources.
- */
-const tickerAnalysisPrompt: Prompt = {
-  name: "ticker-analysis",
-  description: "Comprehensive analysis of a single ticker with stock info, options, dark pool, and insider activity",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Stock ticker symbol to analyze (e.g., AAPL, TSLA)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleTickerAnalysis(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  if (!ticker) {
-    throw new Error("ticker argument is required")
-  }
-
-  const content = `Perform a comprehensive analysis of ${ticker}:
+  },
+  {
+    name: "ticker-analysis",
+    description: "Comprehensive analysis of a single ticker with stock info, options, dark pool, and insider activity",
+    args: [needed("ticker", "Stock ticker symbol to analyze (e.g., AAPL, TSLA)")],
+    render: (a) => {
+      const ticker = req(a, "ticker", true)
+      return `Perform a comprehensive analysis of ${ticker}:
 
 1. Get stock information (current price, market cap, fundamentals)
 2. Analyze recent options flow activity for ${ticker}
@@ -99,44 +76,19 @@ Provide a summary that includes:
 - Insider confidence signals
 - Upcoming catalysts
 - Overall assessment and potential outlook`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Congressional Trading Activity Prompt
- * Track recent congressional trading activity and identify patterns.
- */
-const congressTrackerPrompt: Prompt = {
-  name: "congress-tracker",
-  description: "Track recent congressional trading activity and identify notable patterns",
-  arguments: [
-    {
-      name: "days",
-      description: "Number of days to look back (default: 7)",
-      required: false,
-    },
-    {
-      name: "min_amount",
-      description: "Minimum transaction amount to filter by (e.g., 50000)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleCongressTracker(args: Record<string, string>): Promise<PromptMessage[]> {
-  const days = args.days || "7"
-  const minAmount = args.min_amount || "15000"
-
-  const content = `Analyze recent congressional trading activity:
+  },
+  {
+    name: "congress-tracker",
+    description: "Track recent congressional trading activity and identify notable patterns",
+    args: [
+      opt("days", "Number of days to look back (default: 7)"),
+      opt("min_amount", "Minimum transaction amount to filter by (e.g., 50000)"),
+    ],
+    render: (a) => {
+      const days = a.days || "7"
+      const minAmount = a.min_amount || "15000"
+      return `Analyze recent congressional trading activity:
 
 1. Get recent congressional trades from the past ${days} days
 2. Filter for significant transactions (minimum $${minAmount})
@@ -157,30 +109,13 @@ Provide a summary that includes:
 - Notable large transactions or unusual patterns
 - Sector preferences
 - Any potential red flags or interesting correlations`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Morning Market Briefing Prompt
- * Start the day with market tide, sector activity, dark pool prints, and earnings.
- */
-const morningBriefingPrompt: Prompt = {
-  name: "morning-briefing",
-  description: "Morning market briefing with tide, sectors, dark pool, and earnings on deck",
-  arguments: [] as PromptArgument[],
-}
-
-async function handleMorningBriefing(): Promise<PromptMessage[]> {
-  const content = `Give me a morning market briefing:
+  },
+  {
+    name: "morning-briefing",
+    description: "Morning market briefing with tide, sectors, dark pool, and earnings on deck",
+    args: [],
+    render: () => `Give me a morning market briefing:
 
 1. Get the current market tide to understand overnight/premarket sentiment
 2. Check which sectors are seeing the most options activity early
@@ -192,42 +127,15 @@ Summarize:
 - Overall market sentiment and direction
 - Sectors to watch today
 - Key earnings and potential movers
-- Any overnight news or developments that matter`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
-    },
-  ]
-}
-
-/**
- * Options Setup Analysis Prompt
- * Analyze whether options are cheap or expensive for a ticker.
- */
-const optionsSetupPrompt: Prompt = {
-  name: "options-setup",
-  description: "Analyze options pricing, IV rank, and volatility structure for a ticker",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Stock ticker symbol to analyze (e.g., AAPL, TSLA)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleOptionsSetup(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  if (!ticker) {
-    throw new Error("ticker argument is required")
-  }
-
-  const content = `Analyze the options setup for ${ticker}:
+- Any overnight news or developments that matter`,
+  },
+  {
+    name: "options-setup",
+    description: "Analyze options pricing, IV rank, and volatility structure for a ticker",
+    args: [needed("ticker", "Stock ticker symbol to analyze (e.g., AAPL, TSLA)")],
+    render: (a) => {
+      const ticker = req(a, "ticker", true)
+      return `Analyze the options setup for ${ticker}:
 
 1. Get the current IV rank - is implied volatility high or low historically?
 2. Show the volatility term structure - is it in contango or backwardation?
@@ -241,41 +149,15 @@ Assess:
 - Where are the key open interest levels (potential support/resistance)?
 - Is there any skew in the volatility smile?
 - Recommendation: better to buy or sell premium currently?`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Pre-Earnings Analysis Prompt
- * Comprehensive analysis before an earnings announcement.
- */
-const preEarningsPrompt: Prompt = {
-  name: "pre-earnings",
-  description: "Pre-earnings analysis with historical moves, IV, and positioning",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Stock ticker symbol to analyze (e.g., AAPL, GOOGL)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handlePreEarnings(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  if (!ticker) {
-    throw new Error("ticker argument is required")
-  }
-
-  const content = `Analyze ${ticker} ahead of earnings:
+  },
+  {
+    name: "pre-earnings",
+    description: "Pre-earnings analysis with historical moves, IV, and positioning",
+    args: [needed("ticker", "Stock ticker symbol to analyze (e.g., AAPL, GOOGL)")],
+    render: (a) => {
+      const ticker = req(a, "ticker", true)
+      return `Analyze ${ticker} ahead of earnings:
 
 1. Get historical earnings data - how has the stock moved on past earnings?
 2. Check current IV rank and how it compares to pre-earnings levels historically
@@ -291,38 +173,15 @@ Provide:
 - Notable options positioning (bullish vs bearish sentiment)
 - Any insider signals
 - Key levels to watch for the post-earnings reaction`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Unusual Flow Scanner Prompt
- * Find the most unusual options activity across the market.
- */
-const unusualFlowPrompt: Prompt = {
-  name: "unusual-flow",
-  description: "Scan for unusual options activity with large premium and volume",
-  arguments: [
-    {
-      name: "min_premium",
-      description: "Minimum premium filter in dollars (default: 100000)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleUnusualFlow(args: Record<string, string>): Promise<PromptMessage[]> {
-  const minPremium = args.min_premium || "100000"
-
-  const content = `Find unusual options activity across the market:
+  },
+  {
+    name: "unusual-flow",
+    description: "Scan for unusual options activity with large premium and volume",
+    args: [opt("min_premium", "Minimum premium filter in dollars (default: 100000)")],
+    render: (a) => {
+      const minPremium = a.min_premium || "100000"
+      return `Find unusual options activity across the market:
 
 1. Get flow alerts filtered for premium over $${minPremium}
 2. Look for sweeps and block trades specifically
@@ -336,38 +195,15 @@ Highlight:
 - Any trades with notable characteristics (far OTM, unusual expiration, etc.)
 - Overall market sentiment based on flow (more bullish or bearish bets?)
 - Top 5 tickers by unusual activity worth watching`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Dark Pool Scanner Prompt
- * Analyze dark pool activity across the market.
- */
-const darkPoolScannerPrompt: Prompt = {
-  name: "dark-pool-scanner",
-  description: "Scan for significant dark pool activity across the market",
-  arguments: [
-    {
-      name: "min_size",
-      description: "Minimum trade size filter (default: 1000000)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleDarkPoolScanner(args: Record<string, string>): Promise<PromptMessage[]> {
-  const minSize = args.min_size || "1000000"
-
-  const content = `Scan dark pool activity across the market:
+  },
+  {
+    name: "dark-pool-scanner",
+    description: "Scan for significant dark pool activity across the market",
+    args: [opt("min_size", "Minimum trade size filter (default: 1000000)")],
+    render: (a) => {
+      const minSize = a.min_size || "1000000"
+      return `Scan dark pool activity across the market:
 
 1. Get recent dark pool trades, filtering for size over $${minSize}
 2. Identify the largest block prints today
@@ -381,38 +217,15 @@ Report:
 - Any accumulation or distribution patterns
 - Dark pool levels that could act as support/resistance
 - Comparison to lit market options flow`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Insider Activity Scanner Prompt
- * Track insider buying and selling patterns.
- */
-const insiderScannerPrompt: Prompt = {
-  name: "insider-scanner",
-  description: "Scan for notable insider buying and selling activity",
-  arguments: [
-    {
-      name: "days",
-      description: "Number of days to look back (default: 14)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleInsiderScanner(args: Record<string, string>): Promise<PromptMessage[]> {
-  const days = args.days || "14"
-
-  const content = `Analyze recent insider trading activity over the past ${days} days:
+  },
+  {
+    name: "insider-scanner",
+    description: "Scan for notable insider buying and selling activity",
+    args: [opt("days", "Number of days to look back (default: 14)")],
+    render: (a) => {
+      const days = a.days || "14"
+      return `Analyze recent insider trading activity over the past ${days} days:
 
 1. Get insider transactions, focusing on open market purchases and sales
 2. Look for cluster buys - multiple insiders buying the same stock
@@ -426,39 +239,16 @@ Highlight:
 - Any notable insider selling patterns
 - Insider buy/sell ratio by sector
 - Stocks where insider activity diverges from price action`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Institutional Activity Prompt
- * Track institutional holdings and 13F changes.
- */
-const institutionalActivityPrompt: Prompt = {
-  name: "institutional-activity",
-  description: "Analyze recent institutional filings, holdings changes, and sector exposure",
-  arguments: [
-    {
-      name: "sector",
-      description: "Optional sector focus (e.g., technology, healthcare)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleInstitutionalActivity(args: Record<string, string>): Promise<PromptMessage[]> {
-  const sector = args.sector || ""
-  const sectorFilter = sector ? ` Focus on the ${sector} sector.` : ""
-
-  const content = `Analyze recent institutional activity:${sectorFilter}
+  },
+  {
+    name: "institutional-activity",
+    description: "Analyze recent institutional filings, holdings changes, and sector exposure",
+    args: [opt("sector", "Optional sector focus (e.g., technology, healthcare)")],
+    render: (a) => {
+      const sector = a.sector || ""
+      const sectorFilter = sector ? ` Focus on the ${sector} sector.` : ""
+      return `Analyze recent institutional activity:${sectorFilter}
 
 1. Get the latest 13F filings
 2. Identify the biggest position changes (new positions, exits, size changes)
@@ -472,38 +262,15 @@ Report:
 - Sector allocation trends
 - New positions initiated by multiple institutions
 - Any contrarian moves (institutions buying what retail is selling)`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Sector Flow Analysis Prompt
- * Compare options flow across sector groups.
- */
-const sectorFlowPrompt: Prompt = {
-  name: "sector-flow",
-  description: "Compare options flow sentiment across sectors or a specific sector group",
-  arguments: [
-    {
-      name: "group",
-      description: "Sector group to analyze (mag7, semi, bank, energy, etc.)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleSectorFlow(args: Record<string, string>): Promise<PromptMessage[]> {
-  const group = args.group || "mag7"
-
-  const content = `Analyze options flow for the ${group} sector group:
+  },
+  {
+    name: "sector-flow",
+    description: "Compare options flow sentiment across sectors or a specific sector group",
+    args: [opt("group", "Sector group to analyze (mag7, semi, bank, energy, etc.)")],
+    render: (a) => {
+      const group = a.group || "mag7"
+      return `Analyze options flow for the ${group} sector group:
 
 1. Get the greek flow (delta and vega exposure) for the ${group} group
 2. Break down flow by expiration to see near-term vs longer-term positioning
@@ -517,41 +284,15 @@ Provide:
 - Which names have the most bearish positioning
 - Net delta and vega exposure for the group
 - Any divergences between options flow and dark pool activity`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Greek Exposure Analysis Prompt
- * Analyze dealer gamma and delta positioning.
- */
-const greekExposurePrompt: Prompt = {
-  name: "greek-exposure",
-  description: "Analyze gamma, delta, and vanna exposure for a ticker",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Stock ticker symbol to analyze (e.g., SPY, QQQ)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleGreekExposure(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  if (!ticker) {
-    throw new Error("ticker argument is required")
-  }
-
-  const content = `Analyze greek exposure for ${ticker}:
+  },
+  {
+    name: "greek-exposure",
+    description: "Analyze gamma, delta, and vanna exposure for a ticker",
+    args: [needed("ticker", "Stock ticker symbol to analyze (e.g., SPY, QQQ)")],
+    render: (a) => {
+      const ticker = req(a, "ticker", true)
+      return `Analyze greek exposure for ${ticker}:
 
 1. Get gamma exposure (GEX) by strike price
 2. Get delta exposure by strike
@@ -565,38 +306,15 @@ Explain:
 - Key strike levels that could act as magnets or barriers
 - How dealer positioning might affect volatility
 - Critical levels where hedging flows could accelerate moves`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * IV Rank Screener Prompt
- * Find stocks with extreme IV levels.
- */
-const ivRankScreenerPrompt: Prompt = {
-  name: "iv-screener",
-  description: "Screen for stocks with high or low IV rank for options strategies",
-  arguments: [
-    {
-      name: "mode",
-      description: "high (>70 IV rank) or low (<30 IV rank)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleIvRankScreener(args: Record<string, string>): Promise<PromptMessage[]> {
-  const mode = args.mode || "both"
-
-  const content = `Screen for stocks based on IV rank (mode: ${mode}):
+  },
+  {
+    name: "iv-screener",
+    description: "Screen for stocks with high or low IV rank for options strategies",
+    args: [opt("mode", "high (>70 IV rank) or low (<30 IV rank)")],
+    render: (a) => {
+      const mode = a.mode || "both"
+      return `Screen for stocks based on IV rank (mode: ${mode}):
 
 1. Find stocks with IV rank above 70 (expensive options - good for selling premium)
 2. Find stocks with IV rank below 30 (cheap options - good for buying premium)
@@ -610,38 +328,15 @@ Provide:
 - For each, note: current IV rank, any upcoming catalysts, and recent flow sentiment
 - Strategy suggestions (credit spreads for high IV, debit spreads for low IV)
 - Any stocks where IV seems mispriced relative to upcoming events`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Earnings Calendar Prompt
- * Comprehensive earnings calendar with positioning.
- */
-const earningsCalendarPrompt: Prompt = {
-  name: "earnings-calendar",
-  description: "Earnings calendar with IV levels and options positioning",
-  arguments: [
-    {
-      name: "timeframe",
-      description: "today, week, or next_week (default: week)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleEarningsCalendar(args: Record<string, string>): Promise<PromptMessage[]> {
-  const timeframe = args.timeframe || "week"
-
-  const content = `Get the earnings calendar for ${timeframe}:
+  },
+  {
+    name: "earnings-calendar",
+    description: "Earnings calendar with IV levels and options positioning",
+    args: [opt("timeframe", "today, week, or next_week (default: week)")],
+    render: (a) => {
+      const timeframe = a.timeframe || "week"
+      return `Get the earnings calendar for ${timeframe}:
 
 1. List all earnings reports (premarket and afterhours) for ${timeframe}
 2. For major names, include: IV rank, expected move, and historical earnings performance
@@ -655,38 +350,15 @@ Format as:
 - Historical average earnings move for comparison
 - Any notable options activity or insider trades pre-earnings
 - Highlight the most anticipated reports`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * FDA Calendar Prompt
- * Track FDA events and biotech catalysts.
- */
-const fdaCalendarPrompt: Prompt = {
-  name: "fda-calendar",
-  description: "FDA calendar with PDUFA dates and biotech options activity",
-  arguments: [
-    {
-      name: "days",
-      description: "Number of days to look ahead (default: 30)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleFdaCalendar(args: Record<string, string>): Promise<PromptMessage[]> {
-  const days = args.days || "30"
-
-  const content = `Get FDA events for the next ${days} days:
+  },
+  {
+    name: "fda-calendar",
+    description: "FDA calendar with PDUFA dates and biotech options activity",
+    args: [opt("days", "Number of days to look ahead (default: 30)")],
+    render: (a) => {
+      const days = a.days || "30"
+      return `Get FDA events for the next ${days} days:
 
 1. List all upcoming FDA events (PDUFA dates, advisory committees, etc.)
 2. For each event, get the ticker, drug name, and indication
@@ -700,41 +372,15 @@ Provide:
 - Options metrics: IV rank, expected move, put/call ratio
 - Any unusual options flow ahead of the events
 - Historical context on similar FDA decisions if relevant`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Short Interest Analysis Prompt
- * Track short interest and squeeze potential.
- */
-const shortInterestPrompt: Prompt = {
-  name: "short-interest",
-  description: "Analyze short interest, FTDs, and squeeze potential for a ticker",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Stock ticker symbol to analyze (e.g., GME, AMC)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleShortInterest(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  if (!ticker) {
-    throw new Error("ticker argument is required")
-  }
-
-  const content = `Analyze short interest for ${ticker}:
+  },
+  {
+    name: "short-interest",
+    description: "Analyze short interest, FTDs, and squeeze potential for a ticker",
+    args: [needed("ticker", "Stock ticker symbol to analyze (e.g., GME, AMC)")],
+    render: (a) => {
+      const ticker = req(a, "ticker", true)
+      return `Analyze short interest for ${ticker}:
 
 1. Get current short interest data (shares short, percent of float)
 2. Look at short interest trends over time
@@ -753,39 +399,16 @@ Assess squeeze potential:
 - Options positioning (gamma squeeze potential)
 - Dark pool/institutional accumulation signs
 - Overall risk/reward for a squeeze thesis`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Seasonality Analysis Prompt
- * Historical seasonal patterns for a ticker or market.
- */
-const seasonalityPrompt: Prompt = {
-  name: "seasonality",
-  description: "Analyze historical seasonality patterns for a ticker or the market",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Stock ticker symbol (optional - omit for market-wide)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleSeasonality(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  const target = ticker || "the overall market"
-
-  const content = `Analyze seasonality patterns for ${target}:
+  },
+  {
+    name: "seasonality",
+    description: "Analyze historical seasonality patterns for a ticker or the market",
+    args: [opt("ticker", "Stock ticker symbol (optional - omit for market-wide)")],
+    render: (a) => {
+      const ticker = a.ticker?.toUpperCase() || ""
+      const target = ticker || "the overall market"
+      return `Analyze seasonality patterns for ${target}:
 
 1. Get historical performance by month
 2. Identify the strongest and weakest months historically
@@ -800,41 +423,15 @@ Provide:
 - ${ticker ? "Sector comparison" : "Top 10 stocks that historically perform well this month"}
 - Any divergence between current positioning and seasonal patterns
 - Actionable insights based on seasonality`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * ETF Flow Analysis Prompt
- * Track ETF inflows, outflows, and holdings.
- */
-const etfFlowPrompt: Prompt = {
-  name: "etf-flow",
-  description: "Analyze ETF inflows, outflows, and sector exposure",
-  arguments: [
-    {
-      name: "ticker",
-      description: "ETF ticker to analyze (e.g., SPY, QQQ) or stock ticker for exposure lookup",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleEtfFlow(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  if (!ticker) {
-    throw new Error("ticker argument is required")
-  }
-
-  const content = `Analyze ETF data for ${ticker}:
+  },
+  {
+    name: "etf-flow",
+    description: "Analyze ETF inflows, outflows, and sector exposure",
+    args: [needed("ticker", "ETF ticker to analyze (e.g., SPY, QQQ) or stock ticker for exposure lookup")],
+    render: (a) => {
+      const ticker = req(a, "ticker", true)
+      return `Analyze ETF data for ${ticker}:
 
 1. If ${ticker} is an ETF:
    - Get inflow/outflow data over recent periods
@@ -853,30 +450,13 @@ Provide:
 - Holdings breakdown or ETF exposure list
 - Options positioning on the ETF
 - Implications for price action based on flows`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Bullish Confluence Prompt
- * Find stocks with multiple bullish signals.
- */
-const bullishConfluencePrompt: Prompt = {
-  name: "bullish-confluence",
-  description: "Find stocks with multiple bullish signals across flow, dark pool, and insiders",
-  arguments: [] as PromptArgument[],
-}
-
-async function handleBullishConfluence(): Promise<PromptMessage[]> {
-  const content = `Find stocks with bullish confluence across multiple data sources:
+  },
+  {
+    name: "bullish-confluence",
+    description: "Find stocks with multiple bullish signals across flow, dark pool, and insiders",
+    args: [],
+    render: () => `Find stocks with bullish confluence across multiple data sources:
 
 Look for stocks that have ALL of these characteristics:
 1. Bullish options flow - more call buying than put buying, large premium call trades
@@ -894,31 +474,13 @@ Provide:
 - List of stocks meeting all criteria (if any)
 - For each, show: options flow summary, dark pool activity, insider transactions, IV rank
 - Rank by strength of confluence
-- Any additional catalysts (earnings, FDA, etc.) that could drive the move`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
-    },
-  ]
-}
-
-/**
- * Bearish Confluence Prompt
- * Find stocks with multiple bearish signals.
- */
-const bearishConfluencePrompt: Prompt = {
-  name: "bearish-confluence",
-  description: "Find stocks with multiple bearish signals across flow, dark pool, and insiders",
-  arguments: [] as PromptArgument[],
-}
-
-async function handleBearishConfluence(): Promise<PromptMessage[]> {
-  const content = `Find stocks with bearish confluence across multiple data sources:
+- Any additional catalysts (earnings, FDA, etc.) that could drive the move`,
+  },
+  {
+    name: "bearish-confluence",
+    description: "Find stocks with multiple bearish signals across flow, dark pool, and insiders",
+    args: [],
+    render: () => `Find stocks with bearish confluence across multiple data sources:
 
 Look for stocks that have ALL of these characteristics:
 1. Bearish options flow - heavy put buying, large premium put trades or call selling
@@ -936,42 +498,15 @@ Provide:
 - List of stocks meeting multiple criteria
 - For each, show: options flow summary, dark pool activity, insider transactions, short interest
 - Rank by strength of bearish confluence
-- Any upcoming catalysts that could accelerate the downside`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
-    },
-  ]
-}
-
-/**
- * Politician Portfolio Prompt
- * Deep dive on a specific politician's holdings and trades.
- */
-const politicianPortfolioPrompt: Prompt = {
-  name: "politician-portfolio",
-  description: "Analyze a politician's portfolio holdings and recent trades",
-  arguments: [
-    {
-      name: "name",
-      description: "Politician name (e.g., Nancy Pelosi, Dan Crenshaw)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handlePoliticianPortfolio(args: Record<string, string>): Promise<PromptMessage[]> {
-  const name = args.name || ""
-  if (!name) {
-    throw new Error("name argument is required")
-  }
-
-  const content = `Analyze the portfolio and trading activity of ${name}:
+- Any upcoming catalysts that could accelerate the downside`,
+  },
+  {
+    name: "politician-portfolio",
+    description: "Analyze a politician's portfolio holdings and recent trades",
+    args: [needed("name", "Politician name (e.g., Nancy Pelosi, Dan Crenshaw)")],
+    render: (a) => {
+      const name = req(a, "name")
+      return `Analyze the portfolio and trading activity of ${name}:
 
 1. Get their current portfolio holdings
 2. Show recent trades (purchases and sales)
@@ -985,38 +520,15 @@ Provide:
 - Any notable concentrated positions
 - Historical performance of their disclosed trades
 - Comparison to overall congressional trading patterns`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Weekly Expiration Analysis Prompt
- * Analyze options dynamics for weekly expiration.
- */
-const weeklyExpirationPrompt: Prompt = {
-  name: "weekly-expiration",
-  description: "Analyze max pain, gamma, and positioning for weekly options expiration",
-  arguments: [
-    {
-      name: "tickers",
-      description: "Comma-separated tickers to analyze (default: SPY,QQQ,IWM)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleWeeklyExpiration(args: Record<string, string>): Promise<PromptMessage[]> {
-  const tickers = args.tickers || "SPY,QQQ,IWM"
-
-  const content = `Analyze weekly options expiration for ${tickers}:
+  },
+  {
+    name: "weekly-expiration",
+    description: "Analyze max pain, gamma, and positioning for weekly options expiration",
+    args: [opt("tickers", "Comma-separated tickers to analyze (default: SPY,QQQ,IWM)")],
+    render: (a) => {
+      const tickers = a.tickers || "SPY,QQQ,IWM"
+      return `Analyze weekly options expiration for ${tickers}:
 
 For each ticker:
 1. Get max pain for the nearest weekly expiration
@@ -1031,30 +543,13 @@ Provide for each ticker:
 - Gamma levels that could cause pinning or acceleration
 - Expected range based on options pricing
 - Any notable positioning that could drive expiration dynamics`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Economic Calendar Prompt
- * Track upcoming economic events and market positioning.
- */
-const economicCalendarPrompt: Prompt = {
-  name: "economic-calendar",
-  description: "Economic calendar with FOMC, CPI, jobs data and market positioning",
-  arguments: [] as PromptArgument[],
-}
-
-async function handleEconomicCalendar(): Promise<PromptMessage[]> {
-  const content = `Get the economic calendar and analyze market positioning:
+  },
+  {
+    name: "economic-calendar",
+    description: "Economic calendar with FOMC, CPI, jobs data and market positioning",
+    args: [],
+    render: () => `Get the economic calendar and analyze market positioning:
 
 1. Get upcoming economic events (FOMC meetings, CPI releases, jobs reports, GDP, etc.)
 2. For major events, check how the market is positioned:
@@ -1069,31 +564,13 @@ Provide:
 - Current market positioning (bullish/bearish/hedged)
 - Volatility expectations around key dates
 - Historical context for how markets typically react
-- Any unusual options activity suggesting big moves expected`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
-    },
-  ]
-}
-
-/**
- * End of Day Recap Prompt
- * Summarize the day's market action.
- */
-const endOfDayRecapPrompt: Prompt = {
-  name: "end-of-day-recap",
-  description: "End of day market recap with flow, dark pool, and sector summary",
-  arguments: [] as PromptArgument[],
-}
-
-async function handleEndOfDayRecap(): Promise<PromptMessage[]> {
-  const content = `Give me an end of day market recap:
+- Any unusual options activity suggesting big moves expected`,
+  },
+  {
+    name: "end-of-day-recap",
+    description: "End of day market recap with flow, dark pool, and sector summary",
+    args: [],
+    render: () => `Give me an end of day market recap:
 
 1. How did market tide trend throughout the day? (bullish/bearish shifts)
 2. What were the top tickers by net premium (biggest options bets)?
@@ -1107,48 +584,19 @@ Summarize:
 - Large dark pool trades worth noting
 - Sector performance and rotation
 - Key themes and takeaways for tomorrow
-- Any after-hours earnings to watch`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
-    },
-  ]
-}
-
-/**
- * Correlation Analysis Prompt
- * Analyze correlations between tickers.
- */
-const correlationAnalysisPrompt: Prompt = {
-  name: "correlation-analysis",
-  description: "Analyze correlations between tickers over a time period",
-  arguments: [
-    {
-      name: "tickers",
-      description: "Comma-separated tickers to analyze (e.g., NVDA,AMD,INTC)",
-      required: true,
-    },
-    {
-      name: "days",
-      description: "Number of days for correlation period (default: 30)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleCorrelationAnalysis(args: Record<string, string>): Promise<PromptMessage[]> {
-  const tickers = args.tickers || ""
-  if (!tickers) {
-    throw new Error("tickers argument is required")
-  }
-  const days = args.days || "30"
-
-  const content = `Analyze correlations between ${tickers} over the past ${days} days:
+- Any after-hours earnings to watch`,
+  },
+  {
+    name: "correlation-analysis",
+    description: "Analyze correlations between tickers over a time period",
+    args: [
+      needed("tickers", "Comma-separated tickers to analyze (e.g., NVDA,AMD,INTC)"),
+      opt("days", "Number of days for correlation period (default: 30)"),
+    ],
+    render: (a) => {
+      const tickers = req(a, "tickers")
+      const days = a.days || "30"
+      return `Analyze correlations between ${tickers} over the past ${days} days:
 
 1. Get correlation data between these tickers
 2. Identify which pairs are most/least correlated
@@ -1163,38 +611,15 @@ Provide:
 - Any divergences worth noting (one moving opposite to others)
 - Flow sentiment comparison - are options traders aligned or diverging?
 - Trading implications based on correlations`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Top Movers Prompt
- * Find tickers with the biggest options activity.
- */
-const topMoversPrompt: Prompt = {
-  name: "top-movers",
-  description: "Top tickers by net premium and options impact today",
-  arguments: [
-    {
-      name: "limit",
-      description: "Number of top movers to show (default: 10)",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleTopMovers(args: Record<string, string>): Promise<PromptMessage[]> {
-  const limit = args.limit || "10"
-
-  const content = `Find the top ${limit} movers by options activity today:
+  },
+  {
+    name: "top-movers",
+    description: "Top tickers by net premium and options impact today",
+    args: [opt("limit", "Number of top movers to show (default: 10)")],
+    render: (a) => {
+      const limit = a.limit || "10"
+      return `Find the top ${limit} movers by options activity today:
 
 1. Get tickers with the highest net premium (total options dollars flowing)
 2. Separate into bullish movers (call-heavy) vs bearish movers (put-heavy)
@@ -1211,39 +636,16 @@ Provide:
 - Any catalysts (earnings, FDA, etc.) that explain the activity
 - Dark pool confirmation or divergence
 - Which moves look like new positions vs hedging`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * News Scanner Prompt
- * Scan market news and related flow.
- */
-const newsScannerPrompt: Prompt = {
-  name: "news-scanner",
-  description: "Market news headlines with related options and dark pool activity",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Optional ticker to focus news on",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleNewsScanner(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  const tickerFilter = ticker ? ` Focus on ${ticker}.` : ""
-
-  const content = `Scan market news and related trading activity:${tickerFilter}
+  },
+  {
+    name: "news-scanner",
+    description: "Market news headlines with related options and dark pool activity",
+    args: [opt("ticker", "Optional ticker to focus news on")],
+    render: (a) => {
+      const ticker = a.ticker?.toUpperCase() || ""
+      const tickerFilter = ticker ? ` Focus on ${ticker}.` : ""
+      return `Scan market news and related trading activity:${tickerFilter}
 
 1. Get recent market news headlines${ticker ? ` for ${ticker}` : ""}
 2. For major news stories, check:
@@ -1259,41 +661,15 @@ Provide:
 - Any unusual activity without obvious news catalysts
 - Sentiment summary based on news tone
 - Actionable opportunities from news-driven moves`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Option Contract Analysis Prompt
- * Deep dive on a specific option contract.
- */
-const optionContractPrompt: Prompt = {
-  name: "option-contract",
-  description: "Deep dive analysis of a specific option contract",
-  arguments: [
-    {
-      name: "contract",
-      description: "Option contract symbol (e.g., AAPL240119C00150000)",
-      required: true,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleOptionContract(args: Record<string, string>): Promise<PromptMessage[]> {
-  const contract = args.contract?.toUpperCase() || ""
-  if (!contract) {
-    throw new Error("contract argument is required")
-  }
-
-  const content = `Analyze the option contract ${contract}:
+  },
+  {
+    name: "option-contract",
+    description: "Deep dive analysis of a specific option contract",
+    args: [needed("contract", "Option contract symbol (e.g., AAPL240119C00150000)")],
+    render: (a) => {
+      const contract = req(a, "contract", true)
+      return `Analyze the option contract ${contract}:
 
 1. Get current contract details (strike, expiration, type, current price)
 2. Show recent flow for this contract:
@@ -1311,39 +687,16 @@ Provide:
 - Volume analysis (is this contract active?)
 - Historical price movement
 - Assessment: is this contract being accumulated or distributed?`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Analyst Tracker Prompt
- * Track analyst ratings and related flow.
- */
-const analystTrackerPrompt: Prompt = {
-  name: "analyst-tracker",
-  description: "Recent analyst ratings changes with options flow correlation",
-  arguments: [
-    {
-      name: "ticker",
-      description: "Optional ticker to focus on",
-      required: false,
-    },
-  ] as PromptArgument[],
-}
-
-async function handleAnalystTracker(args: Record<string, string>): Promise<PromptMessage[]> {
-  const ticker = args.ticker?.toUpperCase() || ""
-  const tickerFilter = ticker ? ` for ${ticker}` : ""
-
-  const content = `Track analyst ratings and related activity${tickerFilter}:
+  },
+  {
+    name: "analyst-tracker",
+    description: "Recent analyst ratings changes with options flow correlation",
+    args: [opt("ticker", "Optional ticker to focus on")],
+    render: (a) => {
+      const ticker = a.ticker?.toUpperCase() || ""
+      const tickerFilter = ticker ? ` for ${ticker}` : ""
+      return `Track analyst ratings and related activity${tickerFilter}:
 
 1. Get recent analyst ratings (upgrades, downgrades, initiations)${ticker ? ` for ${ticker}` : ""}
 2. For each rating change, check:
@@ -1359,61 +712,16 @@ Provide:
 - Stocks with options activity that might precede ratings
 - Overall analyst sentiment trends
 - Actionable ideas from analyst/flow alignment`
-
-  return [
-    {
-      role: "user",
-      content: {
-        type: "text",
-        text: content,
-      },
     },
-  ]
-}
-
-/**
- * Array of all prompt registrations.
- */
-const promptRegistrations: PromptRegistration[] = [
-  { prompt: dailySummaryPrompt, handler: handleDailySummary },
-  { prompt: tickerAnalysisPrompt, handler: handleTickerAnalysis },
-  { prompt: congressTrackerPrompt, handler: handleCongressTracker },
-  { prompt: morningBriefingPrompt, handler: handleMorningBriefing },
-  { prompt: optionsSetupPrompt, handler: handleOptionsSetup },
-  { prompt: preEarningsPrompt, handler: handlePreEarnings },
-  { prompt: unusualFlowPrompt, handler: handleUnusualFlow },
-  { prompt: darkPoolScannerPrompt, handler: handleDarkPoolScanner },
-  { prompt: insiderScannerPrompt, handler: handleInsiderScanner },
-  { prompt: institutionalActivityPrompt, handler: handleInstitutionalActivity },
-  { prompt: sectorFlowPrompt, handler: handleSectorFlow },
-  { prompt: greekExposurePrompt, handler: handleGreekExposure },
-  { prompt: ivRankScreenerPrompt, handler: handleIvRankScreener },
-  { prompt: earningsCalendarPrompt, handler: handleEarningsCalendar },
-  { prompt: fdaCalendarPrompt, handler: handleFdaCalendar },
-  { prompt: shortInterestPrompt, handler: handleShortInterest },
-  { prompt: seasonalityPrompt, handler: handleSeasonality },
-  { prompt: etfFlowPrompt, handler: handleEtfFlow },
-  { prompt: bullishConfluencePrompt, handler: handleBullishConfluence },
-  { prompt: bearishConfluencePrompt, handler: handleBearishConfluence },
-  { prompt: politicianPortfolioPrompt, handler: handlePoliticianPortfolio },
-  { prompt: weeklyExpirationPrompt, handler: handleWeeklyExpiration },
-  { prompt: economicCalendarPrompt, handler: handleEconomicCalendar },
-  { prompt: endOfDayRecapPrompt, handler: handleEndOfDayRecap },
-  { prompt: correlationAnalysisPrompt, handler: handleCorrelationAnalysis },
-  { prompt: topMoversPrompt, handler: handleTopMovers },
-  { prompt: newsScannerPrompt, handler: handleNewsScanner },
-  { prompt: optionContractPrompt, handler: handleOptionContract },
-  { prompt: analystTrackerPrompt, handler: handleAnalystTracker },
+  },
 ]
 
-/**
- * Export array of all prompts for ListPrompts handler.
- */
-export const prompts = promptRegistrations.map((reg) => reg.prompt)
+export const prompts: Prompt[] = specs.map((s) => ({
+  name: s.name,
+  description: s.description,
+  arguments: s.args,
+}))
 
-/**
- * Export object mapping prompt names to their handlers for GetPrompt handler.
- */
 export const handlers: Record<string, PromptHandler> = Object.fromEntries(
-  promptRegistrations.map((reg) => [reg.prompt.name, reg.handler]),
+  specs.map((s) => [s.name, async (a: Record<string, string>) => toMessages(s.render(a))]),
 )

@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { uwFetch } from "../client.js"
-import { toJsonSchema, tickerSchema, dateSchema } from "../schemas/index.js"
+import { toJsonSchema, tickerSchema, dateSchema } from "../schemas.js"
 import { createToolHandler } from "./helpers.js"
-import { PathParamBuilder } from "../utils/path-params.js"
+import { PathBuilder } from "./helpers.js"
 
 // Explicit per-action schemas
 const peopleSchema = z.object({
@@ -79,7 +79,7 @@ export const handlePoliticians = createToolHandler(politiciansInputSchema, {
   },
 
   portfolio: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("politician_id", data.politician_id)
       .build("/api/politician-portfolios/{politician_id}")
     return uwFetch(path, {
@@ -103,7 +103,7 @@ export const handlePoliticians = createToolHandler(politiciansInputSchema, {
   },
 
   holders: async (data) => {
-    const path = new PathParamBuilder()
+    const path = new PathBuilder()
       .add("ticker", data.ticker)
       .build("/api/politician-portfolios/holders/{ticker}")
     return uwFetch(path, {
