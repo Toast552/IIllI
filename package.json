@@ -1,6 +1,6 @@
 {
   "name": "@unusualwhales/mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Official Unusual Whales MCP server - access 100+ endpoints for options flow, dark pool, congress trades, Greek exposure, volatility, and more",
   "type": "module",
   "main": "dist/index.js",
