@@ -17,6 +17,7 @@ import { politiciansTool, handlePoliticians } from "./politicians.js"
 import { cryptoTool, handleCrypto } from "./crypto.js"
 import { fundamentalsTool, handleFundamentals } from "./fundamentals.js"
 import { technicalsTool, handleTechnicals } from "./technicals.js"
+import { publicStockDataHandlers, publicStockDataTools } from "./public-stock-data.js"
 import type { ToolResponse } from "./helpers.js"
 
 export type { ToolResponse }
@@ -72,6 +73,10 @@ const toolRegistrations: ToolRegistration[] = [
   { tool: cryptoTool, handler: handleCrypto },
   { tool: fundamentalsTool, handler: handleFundamentals },
   { tool: technicalsTool, handler: handleTechnicals },
+  ...publicStockDataTools.map((tool) => ({
+    tool,
+    handler: publicStockDataHandlers[tool.name],
+  })),
 ]
 
 export const tools = toolRegistrations.map((reg) => reg.tool)

@@ -100,6 +100,22 @@ The server exposes tools across 15 data categories. Your MCP client will call th
 | **Screener** | Stock screener, options screener, analyst ratings |
 | **News** | Market news headlines |
 
+### Public Stock Fundamentals and Technicals
+
+The MCP now includes public-style stock tools that map directly to the stock fundamentals and technical indicator endpoints.
+
+| Tool | What it returns |
+|------|------------------|
+| `get_fundamental_breakdown` | Filing-based fundamentals, revenue segmentation, EPS, dividends, and balance-sheet trends |
+| `get_stock_financials` | Combined financials payload with income statements, balance sheets, cash flows, and earnings |
+| `get_income_statements` | Income statement history with optional `report_type` filter |
+| `get_balance_sheets` | Balance sheet history with optional `report_type` filter |
+| `get_cash_flows` | Cash flow history with optional `report_type` filter |
+| `get_earnings_history` | Historical reported/estimated EPS and earnings surprises with optional `report_type` filter |
+| `get_technical_indicator` | Indicator series for `SMA`, `EMA`, `RSI`, `MACD`, `BBANDS`, `STOCH`, `ADX`, `ATR`, `OBV`, `VWAP`, `CCI`, `WILLR`, `AROON`, and `MFI` |
+
+The grouped local-package tools `uw_fundamentals` and `uw_technicals` remain available for clients that prefer the existing action-based interface.
+
 ## Prompts
 
 The server includes 30+ ready-to-use analysis prompts. Ask to use any prompt by name.

@@ -37,15 +37,15 @@ vi.mock("../../src/client.js", () => ({
 import { uwFetch } from "../../src/client.js"
 
 describe("Tool Registry", () => {
-  it("exports all 17 tools", () => {
-    expect(tools).toHaveLength(17)
+  it("exports all registered tools", () => {
+    expect(tools).toHaveLength(26)
   })
 
   it("all tools have required properties", () => {
     for (const tool of tools) {
       expect(tool.name).toBeDefined()
       expect(typeof tool.name).toBe("string")
-      expect(tool.name.startsWith("uw_")).toBe(true)
+      expect(tool.name.length).toBeGreaterThan(0)
 
       expect(tool.description).toBeDefined()
       expect(typeof tool.description).toBe("string")
@@ -100,6 +100,15 @@ describe("Tool Names", () => {
     "uw_news",
     "uw_alerts",
     "uw_politicians",
+    "uw_fundamentals",
+    "uw_technicals",
+    "get_fundamental_breakdown",
+    "get_stock_financials",
+    "get_income_statements",
+    "get_balance_sheets",
+    "get_cash_flows",
+    "get_earnings_history",
+    "get_technical_indicator",
   ]
 
   it("contains all expected tools", () => {
@@ -218,6 +227,9 @@ describe("Request/Response Cycle", () => {
 describe("Tool Input Schema Validation", () => {
   it("all tools have action_type enum in schema", () => {
     for (const tool of tools) {
+      if (tool.name.startsWith("get_")) {
+        continue
+      }
       if (tool.inputSchema.oneOf) {
         // For discriminated unions, action_type is the discriminator field
         // Check that each variant has an action_type property
@@ -234,6 +246,9 @@ describe("Tool Input Schema Validation", () => {
 
   it("action_type is required for all tools", () => {
     for (const tool of tools) {
+      if (tool.name.startsWith("get_")) {
+        continue
+      }
       if (tool.inputSchema.oneOf) {
         // For discriminated unions, action_type is required in each variant
         for (const variant of tool.inputSchema.oneOf) {
