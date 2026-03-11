@@ -59,7 +59,7 @@ const cryptoInputSchema = z.discriminatedUnion("action_type", [
 
 export const cryptoTool = {
   name: "uw_crypto",
-  description: `Access UnusualWhales crypto data including prices, OHLC candles, whale trades, and whale transactions across 14 blockchains.
+  description: `Access UnusualWhales crypto data including prices, OHLC candles, whale trades, and whale transactions across 3 blockchains.
 
 Available actions:
 - state: Get current state for a crypto pair with 24h OHLCV data (pair required)
