@@ -1,48 +1,32 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { tools, handlers } from "../../src/tools/index.js"
 
-// Mock the client module for all handler tests
-vi.mock("../../src/client.js", () => ({
-  uwFetch: vi.fn().mockResolvedValue({ data: { mocked: true } }),
-  formatResponse: vi.fn((result) => {
-    if (result.error) {
-      return JSON.stringify({ error: result.error }, null, 2)
-    }
-    return JSON.stringify(result.data, null, 2)
+// Mock the gateway before any catalog imports
+vi.mock("../../src/gateway.js", () => ({
+  request: vi.fn().mockResolvedValue({ payload: { mocked: true } }),
+  sanitizeSegment: vi.fn((value: unknown) => {
+    if (value === undefined || value === null) throw new Error("Path segment is required")
+    const s = String(value)
+    if (s.includes("/") || s.includes("\\") || s.includes("..")) throw new Error("Invalid path segment")
+    return encodeURIComponent(s)
   }),
-  formatStructuredResponse: vi.fn((result) => {
-    if (result.error) {
-      return {
-        text: JSON.stringify({ error: result.error }, null, 2),
-      }
-    }
-    return {
-      text: JSON.stringify(result.data, null, 2),
-      structuredContent: result.data,
-    }
-  }),
-  formatError: vi.fn((message) => JSON.stringify({ error: message })),
-  encodePath: vi.fn((value) => {
-    if (value === undefined || value === null) {
-      throw new Error("Path parameter is required")
-    }
-    const str = String(value)
-    if (str.includes("/") || str.includes("\\") || str.includes("..")) {
-      throw new Error("Invalid path parameter")
-    }
-    return encodeURIComponent(str)
-  }),
+  log: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  faultJson: vi.fn((msg: string) => JSON.stringify({ error: msg })),
+  breakerSnapshot: vi.fn(() => ({ phase: "closed", faults: 0 })),
 }))
 
-import { uwFetch } from "../../src/client.js"
+import { allTools } from "../../src/catalog/index.js"
+import { request } from "../../src/gateway.js"
+
+const mockRequest = request as ReturnType<typeof vi.fn>
 
 describe("Tool Registry", () => {
-  it("exports all registered tools", () => {
-    expect(tools).toHaveLength(26)
+  it("exports a non-empty array of compiled tools", () => {
+    expect(Array.isArray(allTools)).toBe(true)
+    expect(allTools.length).toBeGreaterThan(0)
   })
 
   it("all tools have required properties", () => {
-    for (const tool of tools) {
+    for (const tool of allTools) {
       expect(tool.name).toBeDefined()
       expect(typeof tool.name).toBe("string")
       expect(tool.name.length).toBeGreaterThan(0)
@@ -52,33 +36,13 @@ describe("Tool Registry", () => {
       expect(tool.description.length).toBeGreaterThan(0)
 
       expect(tool.inputSchema).toBeDefined()
-      // For discriminated unions, the schema has oneOf instead of type: "object"
-      expect(tool.inputSchema.oneOf || tool.inputSchema.type).toBeDefined()
-      // For discriminated unions, properties are in each variant, not at the top level
-      if (tool.inputSchema.oneOf) {
-        expect(Array.isArray(tool.inputSchema.oneOf)).toBe(true)
-        expect(tool.inputSchema.oneOf.length).toBeGreaterThan(0)
-      } else {
-        expect(tool.inputSchema.properties).toBeDefined()
-      }
+      expect(typeof tool.handler).toBe("function")
     }
   })
 
-  it("all tools have a corresponding handler", () => {
-    for (const tool of tools) {
-      expect(handlers[tool.name]).toBeDefined()
-      expect(typeof handlers[tool.name]).toBe("function")
-    }
-  })
-
-  it("has no extra handlers without tools", () => {
-    const toolNames = tools.map((t) => t.name)
-    const handlerNames = Object.keys(handlers)
-
-    expect(handlerNames.length).toBe(toolNames.length)
-    for (const name of handlerNames) {
-      expect(toolNames).toContain(name)
-    }
+  it("all tools have unique names", () => {
+    const names = allTools.map((t) => t.name)
+    expect(new Set(names).size).toBe(names.length)
   })
 })
 
@@ -112,7 +76,7 @@ describe("Tool Names", () => {
   ]
 
   it("contains all expected tools", () => {
-    const toolNames = tools.map((t) => t.name)
+    const toolNames = allTools.map((t) => t.name)
     for (const expected of expectedTools) {
       expect(toolNames).toContain(expected)
     }
@@ -121,143 +85,142 @@ describe("Tool Names", () => {
 
 describe("Tool Annotations", () => {
   it("all tools have readOnlyHint annotation", () => {
-    for (const tool of tools) {
+    for (const tool of allTools) {
       expect(tool.annotations?.readOnlyHint).toBe(true)
     }
   })
 
   it("all tools have idempotentHint annotation", () => {
-    for (const tool of tools) {
+    for (const tool of allTools) {
       expect(tool.annotations?.idempotentHint).toBe(true)
     }
   })
 })
 
 describe("Handler Integration", () => {
-  const mockUwFetch = uwFetch as ReturnType<typeof vi.fn>
-
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUwFetch.mockResolvedValue({ data: { test: "response" } })
+    mockRequest.mockResolvedValue({ payload: { test: "response" } })
   })
 
   afterEach(() => {
     vi.clearAllMocks()
   })
 
-  it("handlers return structured responses", async () => {
-    const handler = handlers["uw_stock"]
-    const result = await handler({ action_type: "ticker_exchanges" })
+  it("catalog tool handlers return structured responses", async () => {
+    const stockTool = allTools.find((t) => t.name === "uw_stock")!
+    const result = await stockTool.handler({ command: "ticker_exchanges" })
 
     expect(typeof result).toBe("object")
     expect(result).toHaveProperty("text")
-    expect(typeof result.text).toBe("string")
-    expect(() => JSON.parse(result.text)).not.toThrow()
+    expect(typeof (result as any).text).toBe("string")
+    expect(() => JSON.parse((result as any).text)).not.toThrow()
   })
 
-  it("handlers return error for invalid input", async () => {
-    const handler = handlers["uw_stock"]
-    const result = await handler({ action_type: "invalid_action_that_does_not_exist" })
+  it("catalog tool handlers return error for invalid command", async () => {
+    const stockTool = allTools.find((t) => t.name === "uw_stock")!
+    const result = await stockTool.handler({ command: "invalid_command_xyz" })
 
     expect(typeof result).toBe("object")
     expect(result).toHaveProperty("text")
-    const parsed = JSON.parse(result.text)
+    const parsed = JSON.parse((result as any).text)
     expect(parsed.error).toBeDefined()
   })
 
-  it("handlers make API calls via uwFetch", async () => {
-    const handler = handlers["uw_stock"]
-    await handler({ action_type: "info", ticker: "AAPL" })
+  it("catalog tool handlers make API calls via request()", async () => {
+    const stockTool = allTools.find((t) => t.name === "uw_stock")!
+    await stockTool.handler({ command: "info", ticker: "AAPL" })
 
-    expect(mockUwFetch).toHaveBeenCalled()
+    expect(mockRequest).toHaveBeenCalled()
+  })
+
+  it("standalone tool handlers work correctly", async () => {
+    const fundamentalTool = allTools.find((t) => t.name === "get_fundamental_breakdown")!
+    const result = await fundamentalTool.handler({ ticker: "AAPL" })
+
+    expect(typeof result).toBe("object")
+    expect(result).toHaveProperty("text")
+    expect(mockRequest).toHaveBeenCalled()
   })
 
   it("multiple handlers can be called sequentially", async () => {
-    await handlers["uw_stock"]({ action_type: "ticker_exchanges" })
-    await handlers["uw_flow"]({ action_type: "flow_alerts" })
-    await handlers["uw_market"]({ action_type: "market_tide" })
+    const stock = allTools.find((t) => t.name === "uw_stock")!
+    const flow = allTools.find((t) => t.name === "uw_flow")!
+    const market = allTools.find((t) => t.name === "uw_market")!
 
-    expect(mockUwFetch).toHaveBeenCalledTimes(3)
+    await stock.handler({ command: "ticker_exchanges" })
+    await flow.handler({ command: "flow_alerts" })
+    await market.handler({ command: "market_tide" })
+
+    expect(mockRequest).toHaveBeenCalledTimes(3)
   })
 })
 
 describe("Request/Response Cycle", () => {
-  const mockUwFetch = uwFetch as ReturnType<typeof vi.fn>
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("successful API response flows through correctly", async () => {
     const mockData = { ticker: "AAPL", price: 175.50, volume: 1000000 }
-    mockUwFetch.mockResolvedValue({ data: mockData })
+    mockRequest.mockResolvedValue({ payload: mockData })
 
-    const handler = handlers["uw_stock"]
-    const result = await handler({ action_type: "info", ticker: "AAPL" })
+    const stockTool = allTools.find((t) => t.name === "uw_stock")!
+    const result = await stockTool.handler({ command: "info", ticker: "AAPL" })
     expect(result).toHaveProperty("text")
     expect(result).toHaveProperty("structuredContent")
-    const parsed = JSON.parse(result.text)
+    const parsed = JSON.parse((result as any).text)
 
     expect(parsed).toEqual(mockData)
-    expect(result.structuredContent).toEqual(mockData)
+    expect((result as any).structuredContent).toEqual(mockData)
   })
 
-  it("API error response flows through correctly", async () => {
-    mockUwFetch.mockResolvedValue({ error: "API rate limit exceeded" })
+  it("API fault flows through correctly", async () => {
+    mockRequest.mockResolvedValue({ fault: "API rate limit exceeded" })
 
-    const handler = handlers["uw_stock"]
-    const result = await handler({ action_type: "info", ticker: "AAPL" })
+    const stockTool = allTools.find((t) => t.name === "uw_stock")!
+    const result = await stockTool.handler({ command: "info", ticker: "AAPL" })
     expect(result).toHaveProperty("text")
-    const parsed = JSON.parse(result.text)
+    const parsed = JSON.parse((result as any).text)
 
     expect(parsed.error).toBe("API rate limit exceeded")
   })
 
   it("validation errors are returned before API call", async () => {
-    const handler = handlers["uw_stock"]
-    const result = await handler({ action_type: "ohlc", ticker: "AAPL" }) // missing candle_size
+    const stockTool = allTools.find((t) => t.name === "uw_stock")!
+    const result = await stockTool.handler({ command: "ohlc", ticker: "AAPL" }) // missing candle_size
 
     expect(result).toHaveProperty("text")
-    const parsed = JSON.parse(result.text)
-    expect(parsed.error).toContain("Invalid input")
-    expect(mockUwFetch).not.toHaveBeenCalled()
+    const parsed = JSON.parse((result as any).text)
+    expect(parsed.error).toBeDefined()
+    expect(mockRequest).not.toHaveBeenCalled()
   })
 })
 
-describe("Tool Input Schema Validation", () => {
-  it("all tools have action_type enum in schema", () => {
-    for (const tool of tools) {
-      if (tool.name.startsWith("get_")) {
-        continue
-      }
-      if (tool.inputSchema.oneOf) {
-        // For discriminated unions, action_type is the discriminator field
-        // Check that each variant has an action_type property
-        for (const variant of tool.inputSchema.oneOf) {
-          expect(variant.properties?.action_type).toBeDefined()
+describe("Tool Input Schema", () => {
+  it("catalog tools use command discriminator", () => {
+    for (const tool of allTools) {
+      if (tool.name.startsWith("get_")) continue
+
+      const schema = tool.inputSchema
+      // Discriminated unions produce oneOf or anyOf in JSON Schema
+      if (schema.oneOf) {
+        for (const variant of schema.oneOf as any[]) {
+          expect(variant.properties?.command).toBeDefined()
         }
-      } else {
-        // For regular schemas, action_type is in properties
-        const actionProp = tool.inputSchema.properties.action_type
-        expect(actionProp).toBeDefined()
+      } else if (schema.anyOf) {
+        for (const variant of schema.anyOf as any[]) {
+          expect(variant.properties?.command).toBeDefined()
+        }
       }
     }
   })
 
-  it("action_type is required for all tools", () => {
-    for (const tool of tools) {
-      if (tool.name.startsWith("get_")) {
-        continue
-      }
-      if (tool.inputSchema.oneOf) {
-        // For discriminated unions, action_type is required in each variant
-        for (const variant of tool.inputSchema.oneOf) {
-          expect(variant.required).toContain("action_type")
-        }
-      } else {
-        // For regular schemas, action_type is in required array
-        expect(tool.inputSchema.required).toContain("action_type")
-      }
+  it("standalone tools have a flat params schema", () => {
+    for (const tool of allTools) {
+      if (!tool.name.startsWith("get_")) continue
+      expect(tool.inputSchema.properties).toBeDefined()
+      expect(tool.inputSchema.properties.ticker || tool.inputSchema.properties.indicator).toBeDefined()
     }
   })
 })

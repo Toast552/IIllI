@@ -1,5 +1,7 @@
 # Unusual Whales MCP
 
+> **Inspired by [erikmaday/unusual-whales-mcp](https://github.com/erikmaday/unusual-whales-mcp)** - the original community MCP server for Unusual Whales by Erik Maday.
+
 [![npm](https://img.shields.io/npm/v/@unusualwhales/mcp)](https://www.npmjs.com/package/@unusualwhales/mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -223,8 +225,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Acknowledgments
 
-This project was inspired by the community MCP server built by [Erik Maday](https://github.com/erikmaday/unusual-whales-mcp).
+This project builds on the foundational work of [Erik Maday](https://github.com/erikmaday), whose [unusual-whales-mcp](https://github.com/erikmaday/unusual-whales-mcp) was the first community MCP server for Unusual Whales and demonstrated how to bring market data into the MCP ecosystem.
 
 ## License
 
 MIT - see [LICENSE](LICENSE).
+
+---
+
+<sub>Originally inspired by the UW community MCP [erikmaday/unusual-whales-mcp](https://github.com/erikmaday/unusual-whales-mcp).</sub>
