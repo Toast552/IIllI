@@ -25,7 +25,26 @@ claude mcp add --transport http unusualwhales \
 ```
 
 ```json
-// Claude Desktop (~/.config/Claude/claude_desktop_config.json on macOS)
+// Claude Desktop (~/Library/Application Support/Claude/claude_desktop_config.json on macOS)
+{
+  "mcpServers": {
+    "unusualwhales": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://api.unusualwhales.com/api/mcp",
+        "--header",
+        "Authorization: Bearer YOUR_KEY"
+      ]
+    }
+  }
+}
+```
+
+> Claude Desktop does not natively support remote MCP servers yet, so we use [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) to bridge the connection. Requires Node.js 18+.
+
+```json
 // Cursor (~/.cursor/mcp.json)
 {
   "mcpServers": {
@@ -124,7 +143,8 @@ Config file locations:
 |---------|-----|
 | **Server not connecting** | Make sure the URL is exactly `https://api.unusualwhales.com/api/mcp`. Common mistake: using `unusualwhales.com/public-api/mcp` (that's the docs page, not the server). |
 | **Tools not appearing** | Fully quit and reopen your client after adding the config. Verify your JSON has no trailing commas. |
-| **401 Unauthorized** | Check your API key is correct and active. Remote config needs `"Authorization": "Bearer YOUR_KEY"` in headers. Local config needs `UW_API_KEY` in env. |
+| **401 Unauthorized** | Check your API key is correct and active. Remote config needs `"Authorization: Bearer YOUR_KEY"` in the `--header` arg. Local config needs `UW_API_KEY` in env. |
+| **npx not found (nvm users)** | Claude Desktop doesn't inherit your shell PATH. Use the full path to npx in the `command` field (e.g. `/Users/you/.nvm/versions/node/v20.x.x/bin/npx`) and add `"env": { "PATH": "/Users/you/.nvm/versions/node/v20.x.x/bin:/usr/local/bin:/usr/bin:/bin" }`. |
 
 ### 3. Ask Questions
 
