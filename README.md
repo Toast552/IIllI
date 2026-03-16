@@ -19,14 +19,18 @@ Get your key at [unusualwhales.com/settings/api-dashboard](https://unusualwhales
 
 ```bash
 # Claude Code
-claude mcp add unusualwhales --transport http https://api.unusualwhales.com/api/mcp -H "Authorization: Bearer YOUR_KEY"
+claude mcp add --transport http unusualwhales \
+  https://api.unusualwhales.com/api/mcp \
+  --header "Authorization: Bearer YOUR_KEY"
 ```
 
 ```json
-// Claude Desktop, Cursor, VS Code, Windsurf
+// Claude Desktop (~/.config/Claude/claude_desktop_config.json on macOS)
+// Cursor (~/.cursor/mcp.json)
 {
   "mcpServers": {
     "unusualwhales": {
+      "type": "url",
       "url": "https://api.unusualwhales.com/api/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_KEY"
@@ -35,6 +39,37 @@ claude mcp add unusualwhales --transport http https://api.unusualwhales.com/api/
   }
 }
 ```
+
+```json
+// VS Code (.vscode/mcp.json) — uses "servers" instead of "mcpServers"
+{
+  "servers": {
+    "unusualwhales": {
+      "type": "url",
+      "url": "https://api.unusualwhales.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_KEY"
+      }
+    }
+  }
+}
+```
+
+```json
+// Windsurf (~/.codeium/windsurf/mcp_config.json) — uses "serverUrl" instead of "url"
+{
+  "mcpServers": {
+    "unusualwhales": {
+      "serverUrl": "https://api.unusualwhales.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_KEY"
+      }
+    }
+  }
+}
+```
+
+> **After adding the config, fully quit and reopen your AI assistant.** Just saving the file is not enough — the MCP server connects at startup.
 
 <details>
 <summary><strong>Local</strong> — runs on your machine (Node.js 20+)</summary>
@@ -45,9 +80,24 @@ claude mcp add unusualwhales -e UW_API_KEY=YOUR_KEY -- npx -y @unusualwhales/mcp
 ```
 
 ```json
-// Claude Desktop, Cursor, VS Code, Windsurf
+// Claude Desktop, Cursor
 {
   "mcpServers": {
+    "unusualwhales": {
+      "command": "npx",
+      "args": ["-y", "@unusualwhales/mcp"],
+      "env": {
+        "UW_API_KEY": "YOUR_KEY"
+      }
+    }
+  }
+}
+```
+
+```json
+// VS Code (.vscode/mcp.json)
+{
+  "servers": {
     "unusualwhales": {
       "command": "npx",
       "args": ["-y", "@unusualwhales/mcp"],
@@ -67,6 +117,14 @@ Config file locations:
 - **Windsurf**: `~/.codeium/windsurf/mcp_config.json`
 
 </details>
+
+### Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| **Server not connecting** | Make sure the URL is exactly `https://api.unusualwhales.com/api/mcp`. Common mistake: using `unusualwhales.com/public-api/mcp` (that's the docs page, not the server). |
+| **Tools not appearing** | Fully quit and reopen your client after adding the config. Verify your JSON has no trailing commas. |
+| **401 Unauthorized** | Check your API key is correct and active. Remote config needs `"Authorization": "Bearer YOUR_KEY"` in headers. Local config needs `UW_API_KEY` in env. |
 
 ### 3. Ask Questions
 
