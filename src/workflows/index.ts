@@ -509,7 +509,7 @@ Provide:
   },
   {
     slug: "politician-portfolio",
-    label: "Analyze a politician's portfolio holdings and recent trades",
+    label: "[Premium] Analyze a politician's portfolio holdings and recent trades — requires premium plan, contact support@unusualwhales.com to upgrade",
     inputs: [mandatory("name", "Politician name (e.g., Nancy Pelosi, Dan Crenshaw)")],
     compose: (a) => {
       const name = required(a, "name")

@@ -19,7 +19,9 @@ Available commands:
 
 export const politiciansCatalog: ToolCatalog = {
   id: "uw_politicians",
-  summary: `Access UnusualWhales politician portfolio and trading data.
+  summary: `PREMIUM TOOL — Requires a premium API plan. Contact support@unusualwhales.com to upgrade your access.
+
+Access UnusualWhales politician portfolio and trading data.
 
 Available commands:
 - people: List all politicians

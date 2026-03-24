@@ -169,7 +169,7 @@ The server exposes tools across 15 data categories. Your MCP client will call th
 | **Flow** | Options flow alerts, full tape, net flow by expiry, sector flow |
 | **Dark Pool** | Transactions with NBBO context, price level filtering |
 | **Congress** | Congressional trades, late filings, individual member activity |
-| **Politicians** | Portfolios, recent trades, holdings by ticker |
+| **Politicians** *(Premium)* | Portfolios, recent trades, holdings by ticker — [contact support](mailto:support@unusualwhales.com) to upgrade |
 | **Insider** | Insider transactions, sector flow, ticker flow |
 | **Institutions** | 13F filings, holdings, sector exposure, ownership changes |
 | **Market** | Market tide, sector tide, economic calendar, FDA calendar, correlations |

@@ -52,7 +52,7 @@ Available commands:
 - volatility_term_structure: Get term structure (ticker required; date optional)
 - stock_state: Get stock state (ticker required)
 - insider_buy_sells: Get insider buy/sells for stock (ticker required; limit optional)
-- ownership: Get ownership data (ticker required; limit optional)
+- ownership: PREMIUM — Get ownership data (ticker required; limit optional). Requires premium API plan, contact support@unusualwhales.com to upgrade
 - tickers_by_sector: Get tickers in sector (sector required)
 - ticker_exchanges: Get mapping of all tickers to their exchanges (no params required)
 - flow_alerts: Get flow alerts for a specific ticker (ticker required; limit optional)
