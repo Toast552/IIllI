@@ -97,7 +97,7 @@ Available commands:
     { name: "volatility_term_structure", route: "/api/stock/{ticker}/volatility/term-structure", params: z.object({ ticker, date: dateStr.optional() }) },
     { name: "stock_state", route: "/api/stock/{ticker}/stock-state", params: z.object({ ticker }) },
     { name: "insider_buy_sells", route: "/api/stock/{ticker}/insider-buy-sells", params: z.object({ ticker }) },
-    { name: "ownership", route: "/api/stock/{ticker}/ownership", params: z.object({ ticker, limit: z.number().int().min(1).max(100).default(20).optional() }) },
+    { name: "ownership", route: "/api/stock/{ticker}/ownership", premium: true, params: z.object({ ticker, limit: z.number().int().min(1).max(100).default(20).optional() }) },
     { name: "tickers_by_sector", route: "/api/stock/{sector}/tickers", params: z.object({ sector: sectorEnum }) },
     { name: "ticker_exchanges", route: "/api/stock-directory/ticker-exchanges", params: z.object({}) },
     { name: "flow_alerts", route: "/api/stock/{ticker}/flow-alerts", params: z.object({ ticker, limit: resultLimit.optional() }) },

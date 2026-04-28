@@ -63,7 +63,6 @@ describe("Tool Names", () => {
     "uw_seasonality",
     "uw_news",
     "uw_alerts",
-    "uw_politicians",
     "uw_fundamentals",
     "uw_technicals",
     "get_fundamental_breakdown",
