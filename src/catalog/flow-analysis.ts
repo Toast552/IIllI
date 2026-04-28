@@ -80,7 +80,7 @@ Lit flow filtering options include: premium range, size range, volume range, and
       }),
       queryRenames: { rule_name: "rule_name[]", issue_types: "issue_types[]" },
     },
-    { name: "full_tape", route: "/api/option-trades/full-tape/{date}", params: z.object({ date: dateStr.describe("Date in YYYY-MM-DD format (required)") }) },
+    { name: "full_tape", route: "/api/option-trades/full-tape/{date}", premium: true, params: z.object({ date: dateStr.describe("Date in YYYY-MM-DD format (required)") }) },
     { name: "net_flow_expiry", route: "/api/net-flow/expiry", params: z.object({ date: dateStr.optional(), moneyness: z.string().describe("Filter by moneyness (all, itm, otm, atm)").optional(), tide_type: z.string().describe("Filter by tide type (all, equity_only, etf_only, index_only)").optional(), expiration: z.string().describe("Filter by expiration type (weekly, zero_dte)").optional() }) },
     { name: "group_greek_flow", route: "/api/group-flow/{flow_group}/greek-flow", params: z.object({ flow_group: flowGroup, date: dateStr.optional() }) },
     { name: "group_greek_flow_expiry", route: "/api/group-flow/{flow_group}/greek-flow/{expiry}", params: z.object({ flow_group: flowGroup, expiry, date: dateStr.optional() }) },

@@ -25,6 +25,8 @@ export interface CommandSpec {
   params: z.ZodObject<any>
   /** Map schema keys to different query-param names (e.g. { expirations: "expirations[]" }). */
   queryRenames?: Record<string, string>
+  /** If true, command is hidden unless the operator opts in via UW_ENABLE_PREMIUM_TOOLS or UW_PREMIUM_TOOLS (using "<catalog_id>.<command>" form). */
+  premium?: boolean
 }
 
 /** A grouped tool that exposes multiple commands via a `command` discriminator. */
@@ -39,6 +41,8 @@ export interface ToolCatalog {
   hints?: { readOnlyHint?: boolean; idempotentHint?: boolean; openWorldHint?: boolean }
   /** Optional Zod output schema. */
   outputSchema?: z.ZodType
+  /** If true, tool is hidden unless the operator opts in via UW_ENABLE_PREMIUM_TOOLS or UW_PREMIUM_TOOLS. */
+  premium?: boolean
 }
 
 /** A standalone tool with its own dedicated schema (no command discriminator). */
@@ -49,6 +53,7 @@ export interface StandaloneSpec {
   params: z.ZodObject<any>
   queryRenames?: Record<string, string>
   hints?: { readOnlyHint?: boolean; idempotentHint?: boolean; openWorldHint?: boolean }
+  premium?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -70,6 +75,7 @@ export interface CompiledTool {
   outputSchema?: { type: "object"; properties: Record<string, unknown>; required?: string[] }
   annotations?: Record<string, boolean>
   handler: ToolHandler
+  premium?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -163,6 +169,7 @@ export function compileCatalog(catalog: ToolCatalog): CompiledTool {
     zodInputSchema: union,
     annotations: catalog.hints || { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     handler,
+    premium: catalog.premium,
   }
 
   if (catalog.outputSchema) {
@@ -202,5 +209,6 @@ export function compileStandalone(spec: StandaloneSpec): CompiledTool {
     zodInputSchema: spec.params,
     annotations: spec.hints || { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     handler,
+    premium: spec.premium,
   }
 }
