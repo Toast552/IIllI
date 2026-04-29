@@ -9,6 +9,11 @@ import { darkPoolsCatalog } from "./dark-pools.js"
 import { congressCatalog, politiciansCatalog } from "./governance.js"
 import { unusualTradesCatalog } from "./governance-unusual-trades.js"
 import { privateMarketsCatalog } from "./private-markets.js"
+import { companiesExtrasCatalog } from "./companies-extras.js"
+import { macroCatalog } from "./macro.js"
+import { forexCatalog } from "./forex.js"
+import { digitalCurrenciesCatalog } from "./digital-currencies.js"
+import { intelCatalog } from "./intel.js"
 import { insiderActivityCatalog } from "./insider-activity.js"
 import { institutionalCatalog } from "./institutional.js"
 import { calendarEventsCatalog } from "./calendar-events.js"
@@ -75,6 +80,11 @@ const rawCatalogs: ToolCatalog[] = [
   politiciansCatalog,
   unusualTradesCatalog,
   privateMarketsCatalog,
+  companiesExtrasCatalog,
+  macroCatalog,
+  forexCatalog,
+  digitalCurrenciesCatalog,
+  intelCatalog,
   digitalAssetsCatalog,
   financialsCatalog,
   indicatorsCatalog,
