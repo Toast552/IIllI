@@ -13,7 +13,7 @@ const offsetField = z.number().int().min(0).describe("Result offset for paginati
 export const privateMarketsCatalog: ToolCatalog = {
   id: "uw_private_markets",
   premium: true,
-  summary: `PREMIUM TOOL — Requires the "private-markets" scope on your API token. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires the "private-markets" scope on your API token. Contact dev@unusualwhales.com to upgrade.
 
 Access UnusualWhales' Nasdaq Private Markets data: pre-IPO companies, valuations, funding rounds, investors, and management.
 

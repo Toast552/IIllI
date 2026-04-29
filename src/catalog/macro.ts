@@ -36,13 +36,13 @@ const TREASURY_MATURITIES = ["3month", "2year", "5year", "7year", "10year", "30y
 export const macroCatalog: ToolCatalog = {
   id: "uw_macro",
   premium: true,
-  summary: `PREMIUM TOOL — Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
 
-Long-running global commodity prices and US economic indicator time-series. Use this for macro context — "where is oil right now", "is CPI accelerating", "10y treasury yield trend", "what's the fed funds rate history" — or for backtests that need to overlay equity moves against the macro backdrop.
+Long-running global commodity prices and US economic indicator time-series. Use this for macro context like "where is oil right now", "is CPI accelerating", "10y treasury yield trend", "what's the fed funds rate history". Also useful for backtests that need to overlay equity moves against the macro backdrop.
 
 Available commands:
-- commodity: Price series for a single commodity. Names: wti, brent, natural-gas, copper, aluminum, wheat, corn, cotton, sugar, coffee, all-commodities. Optional interval (daily/weekly/monthly/quarterly/annual; default monthly). Returns name, unit (e.g. "dollars per barrel"), and an array of {date, value}.
-- economy: US economic indicator series. Indicators: gdp, gdp-per-capita, treasury-yield, fed-funds, cpi, inflation, retail-sales, durables, unemployment, payrolls. Optional interval (daily/weekly/monthly/quarterly/annual/semiannual). For treasury-yield, also pass maturity (3month, 2year, 5year, 7year, 10year, 30year). Returns the same {name, unit, data:[{date, value}]} shape.`,
+- commodity: Price series for a single commodity. Names: wti, brent, natural-gas, copper, aluminum, wheat, corn, cotton, sugar, coffee, all-commodities. Optional interval (daily, weekly, monthly, quarterly, annual; default monthly). Returns name, unit (e.g. "dollars per barrel"), and an array of {date, value}.
+- economy: US economic indicator series. Indicators: gdp, gdp-per-capita, treasury-yield, fed-funds, cpi, inflation, retail-sales, durables, unemployment, payrolls. Optional interval (daily, weekly, monthly, quarterly, annual, semiannual). For treasury-yield, also pass maturity (3month, 2year, 5year, 7year, 10year, 30year). Returns the same {name, unit, data:[{date, value}]} shape.`,
   commands: [
     {
       name: "commodity",

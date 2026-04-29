@@ -10,16 +10,16 @@ const quarter = z
 export const companiesExtrasCatalog: ToolCatalog = {
   id: "uw_companies_extras",
   premium: true,
-  summary: `PREMIUM TOOL — Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
 
-Per-company fundamentals beyond the standard income / balance / cash-flow / earnings endpoints. Use this when you need valuation ratios, analyst targets, dividend/split history, forward estimates, or earnings-call transcripts.
+Per-company fundamentals beyond the standard income, balance, cash-flow, and earnings endpoints. Use this when you need valuation ratios, analyst targets, dividend or split history, forward estimates, or earnings-call transcripts.
 
 Available commands:
-- profile: Full company profile — sector, industry, market cap, EBITDA, P/E, PEG, EPS, dividend yield, profit/operating margin, ROE/ROA, 52-week high/low, 50/200-day moving averages, analyst target price, and analyst rating breakdown (strong-buy / buy / hold / sell / strong-sell counts). Use for "what's the market cap of X?", "show me valuation metrics", "what's the analyst consensus on X?".
+- profile: Full company profile including sector, industry, market cap, EBITDA, P/E, PEG, EPS, dividend yield, profit and operating margin, ROE, ROA, 52-week high and low, 50 and 200 day moving averages, analyst target price, and analyst rating breakdown (strong-buy, buy, hold, sell, strong-sell counts). Use for "what's the market cap of X?", "show me valuation metrics", "what's the analyst consensus on X?".
 - dividends: Full historical dividend events with ex-date, declaration date, record date, payment date, and amount. Use for dividend yield analysis, total return calculations, or backtest setup.
 - splits: Historical stock-split events with effective date and split factor. Useful for normalizing historical price data.
-- earnings_estimates: Forward-looking analyst estimates by quarter/year — EPS estimate avg/high/low, revenue estimate avg/high/low, analyst counts, and recent revisions. Use to compare actuals against consensus.
-- transcript: Full earnings-call transcript with speakers, titles, statements, and per-statement sentiment scores. Pass ticker + quarter (e.g. "2024Q1"). Use for sentiment analysis, exec quotes, or guidance research.`,
+- earnings_estimates: Forward-looking analyst estimates by quarter or year, including EPS estimate avg, high, low, revenue estimate avg, high, low, analyst counts, and recent revisions. Use to compare actuals against consensus.
+- transcript: Full earnings-call transcript with speakers, titles, statements, and per-statement sentiment scores. Pass ticker plus quarter (e.g. "2024Q1"). Use for sentiment analysis, exec quotes, or guidance research.`,
   commands: [
     {
       name: "profile",

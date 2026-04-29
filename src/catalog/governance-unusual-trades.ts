@@ -14,7 +14,7 @@ const tradeTypes = z.enum([
 export const unusualTradesCatalog: ToolCatalog = {
   id: "uw_unusual_trades",
   premium: true,
-  summary: `PREMIUM TOOL — Requires the "unusual-trades" scope on your API token. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires the "unusual-trades" scope on your API token. Contact dev@unusualwhales.com to upgrade.
 
 Access UnusualWhales congressional "unusual trades" / committee conflict-of-interest data.
 

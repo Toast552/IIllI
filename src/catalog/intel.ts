@@ -20,12 +20,12 @@ const ohlcEnum = z.enum(["open", "high", "low", "close"])
 export const intelCatalog: ToolCatalog = {
   id: "uw_intel",
   premium: true,
-  summary: `PREMIUM TOOL — Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
 
 Cross-market intelligence: pre-computed market movers, IPO and listing calendars, and flexible statistical analytics across baskets of tickers.
 
 Available commands:
-- movers: Today's top gainers, top losers, and most actively traded US tickers — pre-ranked, no input needed. Returns {last_updated, top_gainers:[...], top_losers:[...], most_active:[...]} with {ticker, price, change, change_percent, volume} per row. Use for "what's moving today?".
+- movers: Today's top gainers, top losers, and most actively traded US tickers, pre-ranked, no input needed. Returns {last_updated, top_gainers:[...], top_losers:[...], most_active:[...]} with {ticker, price, change, change_percent, volume} per row. Use for "what's moving today?".
 - ipo_calendar: Upcoming IPOs over the next 3 months with name, ticker, date, price-range, currency, and exchange. Use for "what's IPO'ing this week?".
 - listings: Master list of US-traded securities. Pass status="active" (default) for the current universe or status="delisted" with an optional date for historical delistings. Useful for ticker validation, universe construction, or detecting recent delistings.
 - analytics_window: Fixed-window statistical analytics across one or more tickers. Pass symbols (comma-separated), range (ISO date or shorthand like "2month"/"full"), interval (1min..60min/DAILY/WEEKLY/MONTHLY), ohlc (open/high/low/close), and calculations (comma-separated: MIN, MAX, MEAN, MEDIAN, CUMULATIVE_RETURN, VARIANCE, STDDEV, MAX_DRAWDOWN, HISTOGRAM, AUTOCORRELATION, COVARIANCE, CORRELATION). Use for cross-asset stats (e.g. "correlation between AAPL and SPY over the past 60 days").

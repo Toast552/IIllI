@@ -13,7 +13,7 @@ const historyInterval = z.enum(["daily", "weekly", "monthly"])
 export const forexCatalog: ToolCatalog = {
   id: "uw_forex",
   premium: true,
-  summary: `PREMIUM TOOL — Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
 
 Foreign-exchange (FX) spot rates and OHLC bars across major and exotic currency pairs. Use for "what's USD/EUR right now", "show me JPY trend", multi-currency P&L conversion, or correlation work between FX and equities.
 

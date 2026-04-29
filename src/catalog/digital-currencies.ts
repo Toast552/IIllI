@@ -14,9 +14,9 @@ const historyInterval = z.enum(["daily", "weekly", "monthly"])
 export const digitalCurrenciesCatalog: ToolCatalog = {
   id: "uw_digital_currencies",
   premium: true,
-  summary: `PREMIUM TOOL — Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
+  summary: `PREMIUM TOOL. Requires API Advanced, Enterprise Startup, Enterprise Startup + Kafka, or Enterprise tier. Contact dev@unusualwhales.com to upgrade.
 
-Standard market-rate OHLC bars for digital assets (BTC, ETH, etc.) priced against a fiat market. Distinct from uw_crypto (which surfaces UnusualWhales' on-chain whale-tracking data) — use this when you want a clean price chart or backtest of a digital asset against USD/EUR/etc.
+Standard market-rate OHLC bars for digital assets (BTC, ETH, etc.) priced against a fiat market. This is distinct from uw_crypto, which surfaces UnusualWhales' on-chain whale-tracking data. Use this catalog when you want a clean price chart or backtest of a digital asset against USD, EUR, or other fiat.
 
 Available commands:
 - intraday: Intraday OHLC bars for a digital asset against a fiat market. Intervals: 1min, 5min, 15min, 30min, 60min (default 5min). Pass {symbol: "BTC", market: "USD", interval: "5min"}. Returns {symbol, market, interval, time_zone, bars:[{timestamp, open, high, low, close, volume}]}.
