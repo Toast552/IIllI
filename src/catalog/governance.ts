@@ -20,7 +20,7 @@ Available commands:
 export const politiciansCatalog: ToolCatalog = {
   id: "uw_politicians",
   premium: true,
-  summary: `PREMIUM TOOL — Requires the "politician-ports" scope on your API token. Contact dev@unusualwhales.com to upgrade your access.
+  summary: `PREMIUM TOOL. Requires the "politician-ports" scope on your API token. Contact dev@unusualwhales.com to upgrade your access.
 
 Access UnusualWhales politician portfolio and trading data.
 
