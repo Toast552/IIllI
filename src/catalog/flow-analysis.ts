@@ -8,6 +8,7 @@ export const flowAnalysisCatalog: ToolCatalog = {
 
 Available commands:
 - flow_alerts: Get flow alerts with extensive filtering options
+- flow_alert: Get a single flow alert by ID with all constituent trades (id required; older_than optional). For multi-leg alerts returns all related legs; for RepeatedHits returns all transactions.
 - full_tape: Get full options tape for a date (date required)
 - net_flow_expiry: Get net flow by expiry date (date optional)
 - group_greek_flow: Get greek flow (delta & vega) for a flow group (flow_group required; date optional)
@@ -80,6 +81,7 @@ Lit flow filtering options include: premium range, size range, volume range, and
       }),
       queryRenames: { rule_name: "rule_name[]", issue_types: "issue_types[]" },
     },
+    { name: "flow_alert", route: "/api/option-trades/flow-alerts/{id}", params: z.object({ id: z.string().uuid().describe("UUID of the flow alert"), older_than: z.string().describe("Return trades older than this UTC timestamp").optional() }) },
     { name: "full_tape", route: "/api/option-trades/full-tape/{date}", premium: true, params: z.object({ date: dateStr.describe("Date in YYYY-MM-DD format (required)") }) },
     { name: "net_flow_expiry", route: "/api/net-flow/expiry", params: z.object({ date: dateStr.optional(), moneyness: z.string().describe("Filter by moneyness (all, itm, otm, atm)").optional(), tide_type: z.string().describe("Filter by tide type (all, equity_only, etf_only, index_only)").optional(), expiration: z.string().describe("Filter by expiration type (weekly, zero_dte)").optional() }) },
     { name: "group_greek_flow", route: "/api/group-flow/{flow_group}/greek-flow", params: z.object({ flow_group: flowGroup, date: dateStr.optional() }) },

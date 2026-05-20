@@ -16,7 +16,6 @@ Available commands:
 - correlations: Get correlations between tickers (tickers required; interval, start_date, end_date optional)
 - insider_buy_sells: Get total insider buy/sell statistics (limit optional)
 - oi_change: Get top OI changes (date, limit, order optional)
-- spike: Get SPIKE values (date optional)
 - top_net_impact: Get top tickers by net premium (date, issue_types, limit optional)
 - total_options_volume: Get total market options volume (limit optional)`,
   commands: [
@@ -29,7 +28,6 @@ Available commands:
     { name: "correlations", route: "/api/market/correlations", params: z.object({ tickers: z.string().describe("Ticker list for correlations"), interval: z.string().describe("Time interval (1y, 6m, 3m, 1m)").default("1Y").optional(), start_date: z.string().describe("Start date (YYYY-MM-DD)").optional(), end_date: z.string().describe("End date (YYYY-MM-DD)").optional() }) },
     { name: "insider_buy_sells", route: "/api/market/insider-buy-sells", params: z.object({ limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }) },
     { name: "oi_change", route: "/api/market/oi-change", params: z.object({ date: dateStr.optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional(), order: z.enum(["asc", "desc"]).describe("Sort direction").optional() }) },
-    { name: "spike", route: "/api/market/spike", params: z.object({ date: dateStr.optional() }) },
     { name: "top_net_impact", route: "/api/market/top-net-impact", params: z.object({ date: dateStr.optional(), issue_types: z.string().describe("Issue types filter").optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }), queryRenames: { issue_types: "issue_types[]" } },
     { name: "total_options_volume", route: "/api/market/total-options-volume", params: z.object({ limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }) },
   ],
