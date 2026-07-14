@@ -17,7 +17,13 @@ Available commands:
 - insider_buy_sells: Get total insider buy/sell statistics (limit optional)
 - oi_change: Get top OI changes (date, limit, order optional)
 - top_net_impact: Get top tickers by net premium (date, issue_types, limit optional)
-- total_options_volume: Get total market options volume (limit optional)`,
+- total_options_volume: Get total market options volume (limit optional)
+- options_pulse_sectors: Get options pulse by sector/industry (date optional)
+- options_pulse_top: Options pulse scanner across the market (direction, date, ticker, min_score, max_score, min_txn, limit optional)
+- options_pulse_total: Get market-wide options pulse (date optional)
+- volatility_anomaly_top: Get top volatility anomalies (direction required; date, limit optional)
+- volatility_character_top: Get top volatility character (date, limit, sort, dir optional)
+- vix_term_structure: Get VIX term structure (history_days optional)`,
   commands: [
     { name: "market_tide", route: "/api/market/market-tide", params: z.object({ date: dateStr.optional(), otm_only: z.boolean().describe("Only use OTM options").default(false).optional(), interval_5m: z.boolean().describe("Use 5-minute intervals").default(true).optional() }) },
     { name: "sector_tide", route: "/api/market/{sector}/sector-tide", params: z.object({ sector: z.string().describe("Market sector"), date: dateStr.optional() }) },
@@ -30,5 +36,11 @@ Available commands:
     { name: "oi_change", route: "/api/market/oi-change", params: z.object({ date: dateStr.optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional(), order: z.enum(["asc", "desc"]).describe("Sort direction").optional() }) },
     { name: "top_net_impact", route: "/api/market/top-net-impact", params: z.object({ date: dateStr.optional(), issue_types: z.string().describe("Issue types filter").optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }), queryRenames: { issue_types: "issue_types[]" } },
     { name: "total_options_volume", route: "/api/market/total-options-volume", params: z.object({ limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }) },
+    { name: "options_pulse_sectors", route: "/api/options-pulse/sectors", params: z.object({ date: dateStr.optional() }) },
+    { name: "options_pulse_top", route: "/api/options-pulse/top", params: z.object({ direction: z.string().describe("Scan direction filter").optional(), date: dateStr.optional(), ticker: ticker.optional(), min_score: z.number().describe("Minimum pulse score").optional(), max_score: z.number().describe("Maximum pulse score").optional(), min_txn: z.number().int().describe("Minimum number of transactions").optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }) },
+    { name: "options_pulse_total", route: "/api/options-pulse/total", params: z.object({ date: dateStr.optional() }) },
+    { name: "volatility_anomaly_top", route: "/api/volatility/anomaly/top", params: z.object({ direction: z.string().describe("Sort direction / anomaly direction (required)"), date: dateStr.optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional() }) },
+    { name: "volatility_character_top", route: "/api/volatility/character/top", params: z.object({ date: dateStr.optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional(), sort: z.string().describe("Column to sort by").optional(), dir: z.string().describe("Sort direction").optional() }) },
+    { name: "vix_term_structure", route: "/api/volatility/vix-term-structure", params: z.object({ history_days: z.number().int().describe("Number of days of history to include").optional() }) },
   ],
 }

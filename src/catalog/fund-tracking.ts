@@ -16,7 +16,7 @@ Available commands:
     { name: "info", route: "/api/etfs/{ticker}/info", params: z.object({ ticker: ticker.describe("ETF ticker symbol (e.g., SPY, QQQ)") }) },
     { name: "holdings", route: "/api/etfs/{ticker}/holdings", params: z.object({ ticker: ticker.describe("ETF ticker symbol (e.g., SPY, QQQ)") }) },
     { name: "exposure", route: "/api/etfs/{ticker}/exposure", params: z.object({ ticker: ticker.describe("ETF ticker symbol (e.g., SPY, QQQ)") }) },
-    { name: "in_outflow", route: "/api/etfs/{ticker}/in-outflow", params: z.object({ ticker: ticker.describe("ETF ticker symbol (e.g., SPY, QQQ)") }) },
+    { name: "in_outflow", route: "/api/etfs/{ticker}/in-outflow", params: z.object({ ticker: ticker.describe("ETF ticker symbol (e.g., SPY, QQQ)"), start_date: z.string().describe("Start date (YYYY-MM-DD)").optional(), end_date: z.string().describe("End date (YYYY-MM-DD)").optional() }) },
     { name: "weights", route: "/api/etfs/{ticker}/weights", params: z.object({ ticker: ticker.describe("ETF ticker symbol (e.g., SPY, QQQ)") }) },
   ],
 }

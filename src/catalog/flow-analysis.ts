@@ -15,7 +15,8 @@ Available commands:
 - group_greek_flow_expiry: Get greek flow by expiry for a flow group (flow_group, expiry required; date optional)
 - lit_flow_recent: Get recent lit exchange trades across the market
 - lit_flow_ticker: Get lit exchange trades for a specific ticker (ticker required)
-- unusual_tickers: Get tickers with unusual options activity
+- exchange_breakdown: Get exchange & trade-code breakdown for a date (date required; ticker, by_trade_code, min_premium, limit, page, order optional)
+- optionable_tickers: Get the list of optionable tickers (ticker optional)
 
 Flow groups: airline, bank, basic materials, china, communication services, consumer cyclical, consumer defensive, crypto, cyber, energy, financial services, gas, gold, healthcare, industrials, mag7, oil, real estate, refiners, reit, semi, silver, technology, uranium, utilities
 
@@ -78,6 +79,9 @@ Lit flow filtering options include: premium range, size range, volume range, and
         max_marketcap: z.number().nonnegative().describe("Maximum market cap in USD").optional(),
         newer_than: z.string().describe("Filter alerts newer than UTC timestamp").optional(),
         older_than: z.string().describe("Filter alerts older than UTC timestamp").optional(),
+        min_days_between_expiry_and_earnings: z.number().int().describe("Minimum days between expiry and earnings").optional(),
+        max_days_between_expiry_and_earnings: z.number().int().describe("Maximum days between expiry and earnings").optional(),
+        unusual: z.boolean().describe("Convenience preset matching the live 'unusual' flow filter").optional(),
       }),
       queryRenames: { rule_name: "rule_name[]", issue_types: "issue_types[]" },
     },
@@ -117,6 +121,7 @@ Lit flow filtering options include: premium range, size range, volume range, and
         max_volume: z.number().int().nonnegative().describe("Maximum volume").optional(),
       }),
     },
-    { name: "unusual_tickers", route: "/api/option-trades/unusual-tickers", params: z.object({}) },
+    { name: "exchange_breakdown", route: "/api/option-trades/exchange-breakdown/{date}", params: z.object({ date: dateStr.describe("Date in YYYY-MM-DD format (required)"), ticker: z.array(ticker).describe("Ticker symbols to filter by").optional(), by_trade_code: z.boolean().describe("Break down by trade code").optional(), min_premium: z.string().describe("Minimum premium").optional(), limit: z.number().int().min(1).max(500).describe("Maximum number of results").optional(), page: z.number().int().min(0).describe("Page number for paginated results").optional(), order: z.string().describe("Sort order").optional() }), queryRenames: { ticker: "ticker[]" } },
+    { name: "optionable_tickers", route: "/api/option-trades/optionable-tickers", params: z.object({ ticker: ticker.optional() }) },
   ],
 }

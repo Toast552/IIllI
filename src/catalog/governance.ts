@@ -14,7 +14,7 @@ Available commands:
   commands: [
     { name: "recent_trades", route: "/api/congress/recent-trades", params: z.object({ ticker: ticker.optional(), date: dateStr.optional(), limit: resultLimit.min(1).max(200).default(100).describe("Maximum number of results (default 100, max 200)").optional() }) },
     { name: "late_reports", route: "/api/congress/late-reports", params: z.object({ ticker: ticker.optional(), date: dateStr.optional(), limit: resultLimit.min(1).max(200).default(100).describe("Maximum number of results (default 100, max 200)").optional() }) },
-    { name: "congress_trader", route: "/api/congress/congress-trader", params: z.object({ name: z.string().describe("Congress member name").default("Nancy Pelosi").optional(), ticker: ticker.optional(), date: dateStr.optional(), limit: resultLimit.min(1).max(200).default(100).describe("Maximum number of results (default 100, max 200)").optional() }) },
+    { name: "congress_trader", route: "/api/congress/congress-trader", params: z.object({ name: z.string().describe("Congress member name").default("Nancy Pelosi").optional(), ticker: ticker.optional(), date: dateStr.optional(), date_from: dateStr.describe("Earliest trade date (YYYY-MM-DD)").optional(), page: z.number().int().min(1).describe("Page number for paginated results").optional(), limit: resultLimit.min(1).max(200).default(100).describe("Maximum number of results (default 100, max 200)").optional() }) },
     { name: "politicians", route: "/api/congress/politicians", params: z.object({ last_traded_within_months: z.number().int().min(1).max(240).describe("Filter to politicians who traded within the last N months").optional() }) },
   ],
 }

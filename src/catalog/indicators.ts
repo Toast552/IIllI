@@ -33,6 +33,7 @@ Supported indicators: SMA, EMA, RSI, MACD, BBANDS, STOCH, ADX, ATR, OBV, VWAP, C
         interval,
         time_period: z.number().int().min(1).max(500).describe("Number of data points for calculation (e.g., 14 for RSI-14, 200 for SMA-200)").default(14).optional(),
         series_type: seriesType,
+        month: z.string().describe("Query a specific month in history for intraday intervals (YYYY-MM format, e.g. 2009-01)").optional(),
       }),
     },
   ],

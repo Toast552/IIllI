@@ -28,6 +28,7 @@ import { financialsCatalog } from "./financials.js"
 import { indicatorsCatalog } from "./indicators.js"
 import { publicDataSpecs } from "./public-data.js"
 import { predictionsCatalog } from "./predictions.js"
+import { potusCatalog } from "./potus.js"
 
 const TRUTHY = new Set(["1", "true", "yes", "on"])
 
@@ -89,6 +90,7 @@ const rawCatalogs: ToolCatalog[] = [
   financialsCatalog,
   indicatorsCatalog,
   predictionsCatalog,
+  potusCatalog,
 ]
 
 const catalogTools = rawCatalogs
